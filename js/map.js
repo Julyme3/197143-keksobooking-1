@@ -4,30 +4,26 @@ var NoticeData = {
   TITLES: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
   MIN_PRICE: 1000,
   MAX_PRICE: 1000000,
-  MIN_AVATAR_SRC: 1,
-  MAX_AVATAR_SRC: 8,
   MIN_COUNT_ROOMS: 1,
   MAX_COUNT_ROOMS: 5,
   MAX_COUNT_GUESTS: 100,
-  TYPES_HOUSES: [
-    {
-      'en': 'palace',
+  HOUSES_ARRAY: ['palace', 'flat', 'house', 'bungalo'],
+  TYPES_HOUSES: {
+    'palace': {
       'ru': 'Дворец'
     },
-    {
-      'en': 'flat',
+    'flat': {
       'ru': 'Квартира'
     },
-    {
-      'en': 'house',
+    'house': {
       'ru': 'Дом'
     },
-    {
-      'en': 'bungalo',
+    'bungalo': {
       'ru': 'Бунгало'
     }
 
-  ],
+  },
+
   FEATURES: ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
   PICTURES: ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'],
   CHECKIN_TIME: ['12:00', '13:00', '14:00'],
@@ -44,78 +40,55 @@ var Pin = {
 var COUNT_NOTICES = 8;
 var map = document.querySelector('.map');
 var widthMap = map.offsetWidth;
-var mapPin = document.querySelector('.map__pin');
+var mapPin = map.querySelector('.map__pin');
 var widthPin = mapPin.offsetWidth;
 var heightPin = mapPin.clientHeight;
 map.classList.remove('map--faded');
-
-// Функция для вычисления уникального случайного числа
-var getUniqNumber = function (min, max) {
-  var uniqElement; // рандомное значение
-  var outputArr = []; // массив из неповторяющихся значений
-
-  while (outputArr.length <= max - min) {
-    uniqElement = Math.round(Math.random() * (max - min) + min);
-
-    if (outputArr.indexOf(uniqElement) === -1) {
-      outputArr.push(uniqElement);
-    }
-
-  }
-  return outputArr;
-};
 
 // рандомное значение
 var getRandom = function (min, max) {
   return Math.round(Math.random() * (max - min) + min);
 };
 
-// получаем рандомный массив рандомной длины
-var getRandomString = function (arr) {
-  var outputArr = arr.slice(0);
-  var randomFrom = getRandom(0, outputArr.length - 1); // с какого индекса
-  var randomTo = getRandom(0, outputArr.length - 1); // какое количество
-  outputArr.splice(randomFrom, randomTo);
-  return outputArr;
-};
-// получаем рандомный массив с урлами из PICTURES
-var concateUniqString = function (inputArr) {
-  var outputArr = [];
-  var arrUniqElements = getUniqNumber(0, inputArr.length - 1); // массив неповторяющихся элементов
-
-  for (var i = 0; i <= arrUniqElements.length - 1; i++) {
-    outputArr.push(inputArr[arrUniqElements[i]]); // заполняем массив конкретными значениями
+var shuffleArray = function (a) {
+//  debugger;
+  var j;
+  var x;
+  var i;
+  for (i = a.length - 1; i > 0; i--) {
+    j = Math.floor(Math.random() * (i + 1));
+    x = a[i];
+    a[i] = a[j];
+    a[j] = x;
   }
-
-  return outputArr;
+  return a;
 };
 
 // генерируем массив данных объявлений
 var renderDataNotice = function () {
   var notice;
   var noticesArr = []; // массив с объявлениями
-  var arrTitles = getUniqNumber(0, NoticeData.TITLES.length - 1); // массив неповторяющихся значений
-  var arrImgSrc = getUniqNumber(NoticeData.MIN_AVATAR_SRC, NoticeData.MAX_AVATAR_SRC); // хвост для формирования пути к картинке
+  var arrTitles = shuffleArray(NoticeData.TITLES); // массив неповторяющихся значений
 
   for (var i = 0; i < COUNT_NOTICES; i++) {
     notice =
       {
         'author': {
-          'avatar': 'img/avatars/user0' + arrImgSrc[i] + '.png'
+          'avatar': 'img/avatars/user0' + (i + 1) + '.png'
         },
 
         'offer': {
-          'title': NoticeData.TITLES[arrTitles[i]], // заголовок
+          'title': arrTitles[i], // заголовок
           'address': getRandom(0, NoticeData.COORDINATE_X) + ', ' + getRandom(0, NoticeData.COORDINATE_Y),
           'price': getRandom(NoticeData.MIN_PRICE, NoticeData.MAX_PRICE),
-          'type': NoticeData.TYPES_HOUSES[getRandom(0, NoticeData.TYPES_HOUSES.length - 1)].en,
+          'type': NoticeData.HOUSES_ARRAY[getRandom(0, NoticeData.HOUSES_ARRAY.length - 1)],
           'rooms': getRandom(NoticeData.MIN_COUNT_ROOMS, NoticeData.MAX_COUNT_ROOMS),
           'guests': getRandom(0, NoticeData.MAX_COUNT_GUESTS),
           'checkin': NoticeData.CHECKIN_TIME[getRandom(0, NoticeData.CHECKIN_TIME.length - 1)],
           'checkout': NoticeData.CHECKOUT_TIME[getRandom(0, NoticeData.CHECKOUT_TIME.length - 1)],
-          'features': getRandomString(NoticeData.FEATURES),
+          'features': shuffleArray(NoticeData.FEATURES).splice(getRandom(0, NoticeData.FEATURES - 1)),
           'description': '',
-          'photos': concateUniqString(NoticeData.PICTURES)
+          'photos': shuffleArray(NoticeData.PICTURES)
         },
 
         'location': {
@@ -131,8 +104,6 @@ var renderDataNotice = function () {
 };
 var noticesArr = renderDataNotice(); // массив объектов данных
 
-var fragment = document.createDocumentFragment();
-
 // вставляем в шаблон данные для пина
 var renderPin = function (notice) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
@@ -145,10 +116,31 @@ var renderPin = function (notice) {
   return pinElement;
 };
 
-for (var i = 0; i < noticesArr.length; i++) {
-  fragment.appendChild(renderPin(noticesArr[i]));
-}
-document.querySelector('.map__pins').appendChild(fragment);
+var renderPins = function () {
+  var fragment = document.createDocumentFragment();
+
+  for (var i = 0; i < noticesArr.length; i++) {
+    fragment.appendChild(renderPin(noticesArr[i]));
+  }
+  document.querySelector('.map__pins').appendChild(fragment);
+};
+
+// создаем блок с фотографиями
+var createImg = function (element, arrData) {
+  var blockPhoto = element.querySelector('.popup__photos'); // куда вставляем элементы img
+
+  blockPhoto.innerHTML = '';
+
+  for (var i = 0; i <= arrData.offer.photos.length - 1; i++) {
+    var imgElement = document.createElement('img');
+    imgElement.className = 'popup__photo';
+    imgElement.style.width = 45 + 'px';
+    imgElement.style.height = 40 + 'px';
+    imgElement.alt = 'Фотография жилья';
+    imgElement.src = arrData.offer.photos[i];
+    blockPhoto.appendChild(imgElement);
+  }
+};
 
 // создаем элемент из шаблона и  заполняем его данными
 var renderNotice = function (arrData) {
@@ -158,38 +150,18 @@ var renderNotice = function (arrData) {
   noticeElement.querySelector('.popup__title').textContent = arrData.offer.title;
   noticeElement.querySelector('.popup__text--address').textContent = arrData.offer.address;
   noticeElement.querySelector('.popup__text--price').textContent = arrData.offer.price + '₽/ночь';
-  noticeElement.querySelector('.popup__type').textContent = NoticeData.TYPES_HOUSES[getRandom(0, NoticeData.TYPES_HOUSES.length - 1)].ru;
+  noticeElement.querySelector('.popup__type').textContent = NoticeData.TYPES_HOUSES[arrData.offer.type].ru;
   noticeElement.querySelector('.popup__text--capacity').textContent = arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests;
   noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout;
   noticeElement.querySelector('.popup__features').textContent = arrData.offer.features;
+  console.log(arrData.offer.features.length);
   noticeElement.querySelector('.popup__description').textContent = arrData.offer.description;
   noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
+
+  createImg(noticeElement, noticesArr[0]);
 
   return noticeElement;
 };
 document.querySelector('.map__pins').appendChild(renderNotice(noticesArr[0]));
 
-// создаем блок с фотографиями
-var createImg = function (arrData) {
-  var blockPhoto = document.querySelector('.popup__photos'); // куда вставляем элементы img
-
-  if (arrData.offer.photos.length === blockPhoto.children.length) { // если фотография всего одна
-    blockPhoto.querySelector('.popup__photo').src = arrData.offer.photos;
-  } else {
-
-    for (var i = 1; i <= arrData.offer.photos.length - 1; i++) {
-      blockPhoto.querySelector('.popup__photo').src = arrData.offer.photos[0]; // тег img который уже есть в шаблоне
-
-      var imgElement = document.createElement('img');
-      imgElement.className = 'popup__photo';
-      imgElement.style.width = 45 + 'px';
-      imgElement.style.height = 40 + 'px';
-      imgElement.alt = 'Фотография жилья';
-      imgElement.src = arrData.offer.photos[i];
-      fragment.appendChild(imgElement);
-    }
-  }
-
-};
-createImg(noticesArr[0]);
-document.querySelector('.popup__photos').appendChild(fragment);
+renderPins();
