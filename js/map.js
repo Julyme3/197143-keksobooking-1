@@ -86,7 +86,7 @@ var renderDataNotice = function () {
           'guests': getRandom(0, NoticeData.MAX_COUNT_GUESTS),
           'checkin': NoticeData.CHECKIN_TIME[getRandom(0, NoticeData.CHECKIN_TIME.length - 1)],
           'checkout': NoticeData.CHECKOUT_TIME[getRandom(0, NoticeData.CHECKOUT_TIME.length - 1)],
-          'features': shuffleArray(NoticeData.FEATURES).splice(getRandom(0, NoticeData.FEATURES - 1)),
+          'features': shuffleArray(NoticeData.FEATURES).splice(0, getRandom(0, NoticeData.FEATURES.length - 1)),
           'description': '',
           'photos': shuffleArray(NoticeData.PICTURES)
         },
@@ -142,6 +142,17 @@ var createImg = function (element, arrData) {
   }
 };
 
+var createLi = function (element, arrData) {
+  var list = element.querySelector('.popup__features');
+
+  for (var i = 0; i < arrData.offer.features.length; i++) {
+    var liElement = document.createElement('li');
+    liElement.className = 'popup__feature popup__feature--' + arrData.offer.features[i];
+    list.appendChild(liElement);
+    console.log(liElement);
+  }
+};
+
 // создаем элемент из шаблона и  заполняем его данными
 var renderNotice = function (arrData) {
   var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
@@ -154,10 +165,10 @@ var renderNotice = function (arrData) {
   noticeElement.querySelector('.popup__text--capacity').textContent = arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests;
   noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout;
   noticeElement.querySelector('.popup__features').textContent = arrData.offer.features;
-  console.log(arrData.offer.features.length);
   noticeElement.querySelector('.popup__description').textContent = arrData.offer.description;
   noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
 
+  createLi(noticeElement, noticesArr[0]);
   createImg(noticeElement, noticesArr[0]);
 
   return noticeElement;
