@@ -108,7 +108,7 @@ var renderPin = function (notice) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = notice.author.avatar;
-  pinElement.style.left = notice.location.x - (widthPin/2)  + 'px';
+  pinElement.style.left = notice.location.x - (widthPin / 2) + 'px';
   pinElement.style.top = notice.location.y - heightPin + 'px';
   pinElement.querySelector('img').src = notice.author.avatar;
   pinElement.querySelector('img').alt = notice.offer.title;
@@ -142,11 +142,10 @@ var createImg = function (element, arrData) {
 };
 
 var createList = function (element, arrData) {
-  var list = element.querySelector('.popup__features');
   var liElement = '';
 
   for (var i = 0; i < arrData.offer.features.length; i++) {
-    liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>'
+    liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>';
   }
 
   return liElement;
