@@ -51,7 +51,6 @@ var getRandom = function (min, max) {
 };
 
 var shuffleArray = function (a) {
-//  debugger;
   var j;
   var x;
   var i;
@@ -142,15 +141,15 @@ var createImg = function (element, arrData) {
   }
 };
 
-var createLi = function (element, arrData) {
+var createList = function (element, arrData) {
   var list = element.querySelector('.popup__features');
+  var liElement = '';
 
   for (var i = 0; i < arrData.offer.features.length; i++) {
-    var liElement = document.createElement('li');
-    liElement.className = 'popup__feature popup__feature--' + arrData.offer.features[i];
-    list.appendChild(liElement);
-    console.log(liElement);
+    liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>'
   }
+
+  return liElement;
 };
 
 // создаем элемент из шаблона и  заполняем его данными
@@ -164,11 +163,10 @@ var renderNotice = function (arrData) {
   noticeElement.querySelector('.popup__type').textContent = NoticeData.TYPES_HOUSES[arrData.offer.type].ru;
   noticeElement.querySelector('.popup__text--capacity').textContent = arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests;
   noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout;
-  noticeElement.querySelector('.popup__features').textContent = arrData.offer.features;
+  noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, noticesArr[0]);
   noticeElement.querySelector('.popup__description').textContent = arrData.offer.description;
   noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
 
-  createLi(noticeElement, noticesArr[0]);
   createImg(noticeElement, noticesArr[0]);
 
   return noticeElement;
