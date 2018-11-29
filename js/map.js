@@ -39,11 +39,14 @@ var Pin = {
 
 var COUNT_NOTICES = 8;
 var map = document.querySelector('.map');
+var mainPin = map.querySelector('.map__pin--main');
+var form = document.querySelector('.ad-form');
+var fieldsets = form.querySelectorAll('fieldset');
 var widthMap = map.offsetWidth;
 var mapPin = map.querySelector('.map__pin');
 var widthPin = mapPin.offsetWidth;
 var heightPin = mapPin.clientHeight;
-map.classList.remove('map--faded');
+var heightMarker = 22; // высота ножки пина
 
 // рандомное значение
 var getRandom = function (min, max) {
@@ -107,6 +110,7 @@ var noticesArr = renderDataNotice(); // массив объектов данны
 var renderPin = function (notice) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
+  pinElement.classList.add('hidden');
   pinElement.querySelector('img').src = notice.author.avatar;
   pinElement.style.left = notice.location.x - (widthPin / 2) + 'px';
   pinElement.style.top = notice.location.y - heightPin + 'px';
@@ -156,6 +160,7 @@ var renderNotice = function (arrData) {
   var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var noticeElement = noticeTemplate.cloneNode(true);
 
+  noticeElement.classList.add('hidden');
   noticeElement.querySelector('.popup__title').textContent = arrData.offer.title;
   noticeElement.querySelector('.popup__text--address').textContent = arrData.offer.address;
   noticeElement.querySelector('.popup__text--price').textContent = arrData.offer.price + '₽/ночь';
@@ -170,6 +175,128 @@ var renderNotice = function (arrData) {
 
   return noticeElement;
 };
-document.querySelector('.map__pins').appendChild(renderNotice(noticesArr[0]));
 
+// рендерим все объявления
+var renderNotices = function (arrData) {
+
+  for (var i = 0; i < arrData.length; i++) {
+    document.querySelector('.map__pins').appendChild(renderNotice(arrData[i]));
+  }
+};
 renderPins();
+renderNotices(noticesArr);
+
+// Обработчики событий
+var mapPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+var mapCards = map.querySelectorAll('.map__card');
+var ENTER_KEYCODE = 13;
+var ESC_KEYCODE = 27;
+
+// заполняем поле Адреса
+var inputAddress = form.querySelector('#address');
+var position_x = parseInt(mainPin.style.left) + (widthPin / 2);
+var position_y = parseInt(mainPin.style.top) + (heightPin / 2);
+inputAddress.value = position_x + ', ' + position_y;
+
+var openPopup = function (element) {
+  element.classList.remove('hidden');
+};
+
+var closePopup = function (element) {
+  element.classList.add('hidden');
+  document.removeEventListener('keydown', onPopupEscPress);
+};
+
+var onPopupEscPress = function(evt) {
+
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+};
+
+// проставляем всем пинам tabindex
+mapPins.forEach(function (item) {
+  item.tabIndex = 0;
+});
+
+// Событие клика по основному пину приводит к актицаии формы и отображению всех пинов
+mainPin.addEventListener('click', function () {
+  // активация формы, карты
+  map.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+  fieldsets.disabled = false;
+
+  // делаем видимыми все пины на карте
+  mapPins.forEach(function (item) {
+    item.classList.remove('hidden');
+  });
+});
+
+// открываем объявление по клику на пин
+mapPins.forEach(function (item, i) {
+  item.addEventListener('click', function () {
+    openPopup(mapCards[i]);
+  });
+
+  // закрываем объявление по ESC
+  document.addEventListener('keydown', function (evt) {
+
+    if (evt.keyCode === ESC_KEYCODE) {
+      closePopup(mapCards[i]);
+    }
+  })
+});
+
+// открываем объявления enter
+mapPins.forEach(function (item, i) {
+  item.addEventListener('keydown', function (evt) {
+
+    if (evt.keyCode === ENTER_KEYCODE) {
+      openPopup(mapCards[i]);
+    }
+  })
+});
+
+// за
+// mapPins.forEach(function (item, i) {
+//   item.addEventListener('keydown', function (evt) {
+//
+//     if (evt.keyCode === ENTER_KEYCODE) {
+//       mapCards[i].classList.remove('hidden');
+//     }
+//   })
+// });
+
+// mapPins.forEach(function (item, i) {
+//   item.addEventListener('click', function (evt) {
+//
+//     if (evt.keyCode === ENTER_KEYCODE) {
+//       mapCards[i].classList.remove('hidden');
+//     }
+//   })
+// });
+// Изначально скрываем все объявлениями
+// var mapCards = map.querySelectorAll('.map__card');
+//
+// for (var i = 0; i < mapCards.length; i++) {
+//   mapCards[i].classList.add('hidden');
+// }
+
+// map.addEventListener('click', function (evt) {
+//   var target = evt.target;
+//
+//   // если уже есть класс active - удаляем
+//   for (i = 0; i < mapPins.length - 1; i++) {
+//     var mapPin = mapPins[i];
+//     if (mapPin.classList.contains('pin--active')) {
+//       mapPin.classList.remove('pin--active');
+//     }
+//   }
+//
+//   if (target.tagName === 'IMG') {
+//     evt.target.parentElement.classList.add('pin--active');
+//   } else if (target.classList.contains('pin')) {
+//     target.classList.add('pin--active');
+//   }
+// mapCards[0].classList.remove('hidden');
+// });
