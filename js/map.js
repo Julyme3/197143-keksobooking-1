@@ -32,11 +32,6 @@ var NoticeData = {
   COORDINATE_Y: 500
 };
 
-var Pin = {
-  MIN_LOCATION_Y: 130,
-  MAX_LOCATION_Y: 630
-};
-
 var COUNT_NOTICES = 8;
 var map = document.querySelector('.map');
 var mainPin = map.querySelector('.map__pin--main');
@@ -44,9 +39,14 @@ var form = document.querySelector('.ad-form');
 var fieldsets = form.querySelectorAll('fieldset');
 var widthMap = map.offsetWidth;
 var mapPin = map.querySelector('.map__pin');
-var widthPin = mapPin.offsetWidth;
-var heightPin = mapPin.clientHeight;
-var heightMarker = 22; // высота ножки пина
+
+var pin = {
+  MIN_LOCATION_Y: 130,
+  MAX_LOCATION_Y: 630,
+  width: mapPin.offsetWidth,
+  height: mapPin.offsetHeight
+};
+
 
 // рандомное значение
 var getRandom = function (min, max) {
@@ -95,7 +95,7 @@ var renderDataNotice = function () {
 
         'location': {
           'x': getRandom(0, widthMap),
-          'y': getRandom(Pin.MIN_LOCATION_Y, Pin.MAX_LOCATION_Y)
+          'y': getRandom(pin.MIN_LOCATION_Y, pin.MAX_LOCATION_Y)
         }
       };
     noticesArr.push(notice);
@@ -112,8 +112,8 @@ var renderPin = function (notice) {
   var pinElement = pinTemplate.cloneNode(true);
   pinElement.classList.add('hidden');
   pinElement.querySelector('img').src = notice.author.avatar;
-  pinElement.style.left = notice.location.x - (widthPin / 2) + 'px';
-  pinElement.style.top = notice.location.y - heightPin + 'px';
+  pinElement.style.left = notice.location.x - (pin.width / 2) + 'px';
+  pinElement.style.top = notice.location.y - pin.height + 'px';
   pinElement.querySelector('img').src = notice.author.avatar;
   pinElement.querySelector('img').alt = notice.offer.title;
   return pinElement;
@@ -193,29 +193,39 @@ var ENTER_KEYCODE = 13;
 var ESC_KEYCODE = 27;
 
 // заполняем поле Адреса
-var inputAddress = form.querySelector('#address');
-var position_x = parseInt(mainPin.style.left) + (widthPin / 2);
-var position_y = parseInt(mainPin.style.top) + (heightPin / 2);
-inputAddress.value = position_x + ', ' + position_y;
-
-var openPopup = function (element) {
-  element.classList.remove('hidden');
+var inputText = function () {
+  var inputAddress = form.querySelector('#address');
+  var position_x = parseInt(mainPin.style.left) + (pin.width / 2);
+  var position_y = parseInt(mainPin.style.top) + (pin.height / 2);
+  inputAddress.value = position_x + ', ' + position_y;
 };
+inputText();
 
-var closePopup = function (element) {
-  element.classList.add('hidden');
-  document.removeEventListener('keydown', onPopupEscPress);
-};
-
-var onPopupEscPress = function(evt) {
+var popupEscHandlier = function(evt) {
 
   if (evt.keyCode === ESC_KEYCODE) {
     closePopup();
   }
 };
 
+var doVisibleElement = function (element) {
+  element.classList.remove('hidden');
+
+    // закрываем объявление по ESC
+    document.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === ESC_KEYCODE) {
+        closePopup();
+      }
+    })
+};
+
+var closePopup = function (element) {
+  element.classList.add('hidden');
+  document.removeEventListener('keydown', popupEscHandlier);
+};
+
 // проставляем всем пинам tabindex
-mapPins.forEach(function (item) {
+[].forEach.call(mapPins, function (item) {
   item.tabIndex = 0;
 });
 
@@ -227,32 +237,23 @@ mainPin.addEventListener('click', function () {
   fieldsets.disabled = false;
 
   // делаем видимыми все пины на карте
-  mapPins.forEach(function (item) {
-    item.classList.remove('hidden');
+  [].forEach.call(mapPins, function (item) {
+    doVisibleElement(item);
   });
 });
 
 // открываем объявление по клику на пин
-mapPins.forEach(function (item, i) {
+[].forEach.call(mapPins, function (item, i) {
   item.addEventListener('click', function () {
-    openPopup(mapCards[i]);
+    doVisibleElement(mapCards[i]);
   });
-
-  // закрываем объявление по ESC
-  document.addEventListener('keydown', function (evt) {
-
-    if (evt.keyCode === ESC_KEYCODE) {
-      closePopup(mapCards[i]);
-    }
-  })
 });
 
 // открываем объявления enter
-mapPins.forEach(function (item, i) {
+[].forEach.call(mapPins, function (item, i) {
   item.addEventListener('keydown', function (evt) {
-
     if (evt.keyCode === ENTER_KEYCODE) {
-      openPopup(mapCards[i]);
+      doVisibleElement(mapCards[i]);
     }
   })
 });
