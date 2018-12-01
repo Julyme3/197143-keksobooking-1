@@ -39,14 +39,13 @@ var form = document.querySelector('.ad-form');
 var fieldsets = form.querySelectorAll('fieldset');
 var widthMap = map.offsetWidth;
 var mapPin = map.querySelector('.map__pin');
+var widthPin = mapPin.offsetWidth;
+var heightPin = mapPin.offsetHeight;
 
-var pin = {
+var Pin = {
   MIN_LOCATION_Y: 130,
-  MAX_LOCATION_Y: 630,
-  width: mapPin.offsetWidth,
-  height: mapPin.offsetHeight
+  MAX_LOCATION_Y: 630
 };
-
 
 // рандомное значение
 var getRandom = function (min, max) {
@@ -95,7 +94,7 @@ var renderDataNotice = function () {
 
         'location': {
           'x': getRandom(0, widthMap),
-          'y': getRandom(pin.MIN_LOCATION_Y, pin.MAX_LOCATION_Y)
+          'y': getRandom(Pin.MIN_LOCATION_Y, Pin.MAX_LOCATION_Y)
         }
       };
     noticesArr.push(notice);
@@ -112,8 +111,8 @@ var renderPin = function (notice) {
   var pinElement = pinTemplate.cloneNode(true);
   pinElement.classList.add('hidden');
   pinElement.querySelector('img').src = notice.author.avatar;
-  pinElement.style.left = notice.location.x - (pin.width / 2) + 'px';
-  pinElement.style.top = notice.location.y - pin.height + 'px';
+  pinElement.style.left = notice.location.x - (widthPin / 2) + 'px';
+  pinElement.style.top = notice.location.y - heightPin + 'px';
   pinElement.querySelector('img').src = notice.author.avatar;
   pinElement.querySelector('img').alt = notice.offer.title;
   return pinElement;
@@ -192,68 +191,139 @@ var mapCards = map.querySelectorAll('.map__card');
 var ENTER_KEYCODE = 13;
 var ESC_KEYCODE = 27;
 
-// заполняем поле Адреса
-var inputText = function () {
-  var inputAddress = form.querySelector('#address');
-  var position_x = parseInt(mainPin.style.left) + (pin.width / 2);
-  var position_y = parseInt(mainPin.style.top) + (pin.height / 2);
-  inputAddress.value = position_x + ', ' + position_y;
-};
-inputText();
-
-var popupEscHandlier = function(evt) {
-
-  if (evt.keyCode === ESC_KEYCODE) {
-    closePopup();
-  }
+var doVisibleElement = function (element, hiddenClass) {
+  element.classList.remove(hiddenClass);
 };
 
-var doVisibleElement = function (element) {
+var openPopup = function (element) {
   element.classList.remove('hidden');
-
-    // закрываем объявление по ESC
-    document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ESC_KEYCODE) {
-        closePopup();
-      }
-    })
+  document.addEventListener('keydown', popupEscHandlier);
 };
 
 var closePopup = function (element) {
   element.classList.add('hidden');
+  removeActivePin();
   document.removeEventListener('keydown', popupEscHandlier);
 };
 
-// проставляем всем пинам tabindex
-[].forEach.call(mapPins, function (item) {
-  item.tabIndex = 0;
-});
+var popupEscHandlier = function (evt) {
 
-// Событие клика по основному пину приводит к актицаии формы и отображению всех пинов
-mainPin.addEventListener('click', function () {
-  // активация формы, карты
-  map.classList.remove('map--faded');
-  form.classList.remove('ad-form--disabled');
-  fieldsets.disabled = false;
+  if (evt.keyCode === ESC_KEYCODE) {
 
-  // делаем видимыми все пины на карте
+    [].forEach.call(mapCards, function (item) {
+      closePopup(item);
+    });
+  }
+};
+
+var removeActivePin = function () {
+
+  // удаляем класс active у пинов
   [].forEach.call(mapPins, function (item) {
-    doVisibleElement(item);
+    item.classList.remove('map__pin--active');
   });
+};
+
+// заполняем поле Адреса
+var inputCoordinate = function () {
+  var inputAddress = form.querySelector('#address');
+  var positionX = parseInt(mainPin.style.left, 10) + (widthPin / 2);
+  var positionY = parseInt(mainPin.style.top, 10) + (heightPin / 2);
+  inputAddress.value = positionX + ', ' + positionY;
+};
+inputCoordinate();
+
+// клик по карте
+map.addEventListener('click', function (evt) {
+  var target = evt.target;
+  var indexVisible = 0;
+
+  // Событие клика по основному пину приводит к активации формы и отображению всех пинов
+  if (target === mainPin || target.parentElement.className === mainPin.className) {
+
+    // активация формы, карты
+    doVisibleElement(map, 'map--faded');
+    doVisibleElement(form, 'ad-form--disabled');
+    fieldsets.disabled = false;
+
+    // делаем видимыми все пины на карте
+    [].forEach.call(mapPins, function (item) {
+      doVisibleElement(item, 'hidden');
+    });
+  }
+
+  // клик по пину
+  if (target.className === 'map__pin' || target.parentElement.className === 'map__pin') {
+    evt.preventDefault();
+
+    // прячем все попапы объявлений
+    [].forEach.call(mapCards, function (item) {
+      item.classList.add('hidden');
+    });
+
+    // у всех пинов удаляем класс active
+    removeActivePin();
+
+    // ищем индекс пина в коллекции пинов
+    indexVisible = target.className === 'map__pin' ? [].indexOf.call(mapPins, target) : [].indexOf.call(mapPins, target.parentElement);
+    openPopup(mapCards[indexVisible]);
+
+    // добавляем класс active по нажатому пину
+    target.className === 'map__pin' ? target.classList.add('map__pin--active') : target.parentElement.classList.add('map__pin--active');
+
+    // закрыть попап ESC
+    document.addEventListener('keydown', popupEscHandlier);
+  }
+
+  // закрыть попап кликом по кнопке CLOSE
+  if (target.className === 'popup__close') {
+    closePopup(target.parentElement);
+  }
+
 });
 
-// открываем объявление по клику на пин
-[].forEach.call(mapPins, function (item, i) {
-  item.addEventListener('click', function () {
-    doVisibleElement(mapCards[i]);
-  });
-});
+// нажатие клавиши Enter по пину приводит к отображению соответствующего объявления
+map.addEventListener('keydown', function (evt) {
+  var target = evt.target;
+  var indexVisible = 0;
 
-// открываем объявления enter
-[].forEach.call(mapPins, function (item, i) {
-  item.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      doVisibleElement(mapCards[i]);
+  if (evt.keyCode === ENTER_KEYCODE) {
+
+    // Событие нажатия Enter по основному пину приводит к активации формы и отображению всех пинов
+    if (target === mainPin || target.parentElement.className === mainPin.className) {
+
+      // активация формы, карты
+      doVisibleElement(map, 'map--faded');
+      doVisibleElement(form, 'ad-form--disabled');
+      fieldsets.disabled = false;
+
+      // делаем видимыми все пины на карте
+      [].forEach.call(mapPins, function (item) {
+        doVisibleElement(item, 'hidden');
+      });
     }
-  })
+
+    if (target.className === 'map__pin' || target.parentElement.className === 'map__pin') {
+      evt.preventDefault();
+
+      // прячем все попапы объявлений
+      [].forEach.call(mapCards, function (item) {
+        item.classList.add('hidden');
+      });
+
+      // у всех пинов удаляем класс active
+      removeActivePin();
+
+      indexVisible = target.className === 'map__pin' ? [].indexOf.call(mapPins, target) : [].indexOf.call(mapPins, target.parentElement);
+      openPopup(mapCards[indexVisible]);
+
+      // добавляем класс active по нажатому пину
+      target.className === 'map__pin' ? target.classList.add('map__pin--active') : target.parentElement.classList.add('map__pin--active');
+    }
+
+    if (target.className === 'popup__close') {
+      closePopup(target.parentElement);
+    }
+  }
+
 });
