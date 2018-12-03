@@ -155,39 +155,27 @@ var createList = function (element, arrData) {
 };
 
 // создаем элемент из шаблона и  заполняем его данными
-var renderNotice = function (arrData) {
+var renderNotice = function (arrData, index) {
   var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var noticeElement = noticeTemplate.cloneNode(true);
 
-  noticeElement.classList.add('hidden');
-  noticeElement.querySelector('.popup__title').textContent = arrData.offer.title;
-  noticeElement.querySelector('.popup__text--address').textContent = arrData.offer.address;
-  noticeElement.querySelector('.popup__text--price').textContent = arrData.offer.price + '₽/ночь';
-  noticeElement.querySelector('.popup__type').textContent = NoticeData.TYPES_HOUSES[arrData.offer.type].ru;
-  noticeElement.querySelector('.popup__text--capacity').textContent = arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests;
-  noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout;
-  noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, noticesArr[0]);
-  noticeElement.querySelector('.popup__description').textContent = arrData.offer.description;
-  noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
+  noticeElement.querySelector('.popup__title').textContent = arrData[index].offer.title;
+  noticeElement.querySelector('.popup__text--address').textContent = arrData[index].offer.address;
+  noticeElement.querySelector('.popup__text--price').textContent = arrData[index].offer.price + '₽/ночь';
+  noticeElement.querySelector('.popup__type').textContent = NoticeData.TYPES_HOUSES[arrData[index].offer.type].ru;
+  noticeElement.querySelector('.popup__text--capacity').textContent = arrData[index].offer.rooms + ' комнаты для ' + arrData[index].offer.guests;
+  noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData[index].offer.checkin + ', ' + 'выезд до ' + arrData[index].offer.checkout;
+  noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, noticesArr[index]);
+  noticeElement.querySelector('.popup__description').textContent = arrData[index].offer.description;
+  noticeElement.querySelector('.popup__avatar').src = arrData[index].author.avatar;
 
-  createImg(noticeElement, noticesArr[0]);
-
+  createImg(noticeElement, noticesArr[index]);
   return noticeElement;
 };
-
-// рендерим все объявления
-var renderNotices = function (arrData) {
-
-  for (var i = 0; i < arrData.length; i++) {
-    document.querySelector('.map__pins').appendChild(renderNotice(arrData[i]));
-  }
-};
 renderPins();
-renderNotices(noticesArr);
 
 // Обработчики событий
 var mapPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
-var mapCards = map.querySelectorAll('.map__card');
 var ENTER_KEYCODE = 13;
 var ESC_KEYCODE = 27;
 
@@ -195,34 +183,22 @@ var doVisibleElement = function (element, hiddenClass) {
   element.classList.remove(hiddenClass);
 };
 
-var openPopup = function (element) {
-  element.classList.remove('hidden');
-  document.addEventListener('keydown', popupEscHandlier);
+var openPopup = function (index) {
+  document.querySelector('.map__pins').appendChild(renderNotice(noticesArr, index));
+//  document.addEventListener('keydown', popupEscHandlier);
 };
 
 var closePopup = function (element) {
-  element.classList.add('hidden');
-  removeActivePin();
-  document.removeEventListener('keydown', popupEscHandlier);
+  element.parentElement.removeChild(element);
+  map.querySelector('.map__pin--active').classList.remove('map__pin--active');
+//  document.removeEventListener('keydown', popupEscHandlier);
 };
 
-var popupEscHandlier = function (evt) {
-
-  if (evt.keyCode === ESC_KEYCODE) {
-
-    [].forEach.call(mapCards, function (item) {
-      closePopup(item);
-    });
-  }
-};
-
-var removeActivePin = function () {
-
-  // удаляем класс active у пинов
-  [].forEach.call(mapPins, function (item) {
-    item.classList.remove('map__pin--active');
-  });
-};
+// var popupEscHandlier = function (evt) {
+//   if (evt.keyCode === ESC_KEYCODE) {
+//     closePopup(mapCard);
+//   }
+// };
 
 // заполняем поле Адреса
 var inputCoordinate = function () {
@@ -233,54 +209,56 @@ var inputCoordinate = function () {
 };
 inputCoordinate();
 
+mainPin.addEventListener('mouseup', function () {
+  // активация формы, карты
+  doVisibleElement(map, 'map--faded');
+  doVisibleElement(form, 'ad-form--disabled');
+  fieldsets.disabled = false;
+
+  // делаем видимыми все пины на карте
+  [].forEach.call(mapPins, function (item) {
+    doVisibleElement(item, 'hidden');
+  });
+});
+
 // клик по карте
 map.addEventListener('click', function (evt) {
   var target = evt.target;
   var indexVisible = 0;
 
-  // Событие клика по основному пину приводит к активации формы и отображению всех пинов
-  if (target === mainPin || target.parentElement.className === mainPin.className) {
-
-    // активация формы, карты
-    doVisibleElement(map, 'map--faded');
-    doVisibleElement(form, 'ad-form--disabled');
-    fieldsets.disabled = false;
-
-    // делаем видимыми все пины на карте
-    [].forEach.call(mapPins, function (item) {
-      doVisibleElement(item, 'hidden');
-    });
-  }
-
   // клик по пину
   if (target.className === 'map__pin' || target.parentElement.className === 'map__pin') {
+    var mapCard = map.querySelector('.map__card');
     evt.preventDefault();
-
-    // прячем все попапы объявлений
-    [].forEach.call(mapCards, function (item) {
-      item.classList.add('hidden');
-    });
-
-    // у всех пинов удаляем класс active
-    removeActivePin();
-
+    if (mapCard !== null) {
+      closePopup(mapCard);
+    }
     // ищем индекс пина в коллекции пинов
     indexVisible = target.className === 'map__pin' ? [].indexOf.call(mapPins, target) : [].indexOf.call(mapPins, target.parentElement);
-    openPopup(mapCards[indexVisible]);
+    openPopup(indexVisible);
+    mapCard = map.querySelector('.map__card');
 
     // добавляем класс active по нажатому пину
     target.className === 'map__pin' ? target.classList.add('map__pin--active') : target.parentElement.classList.add('map__pin--active');
 
     // закрыть попап ESC
-    document.addEventListener('keydown', popupEscHandlier);
+    document.addEventListener('keydown', function (evt) {
+    //  debugger;
+      if (evt.keyCode === ESC_KEYCODE) {
+        if (mapCard !== null) {
+          closePopup(mapCard);
+        }
+
+      }
+    });
   }
 
   // закрыть попап кликом по кнопке CLOSE
   if (target.className === 'popup__close') {
     closePopup(target.parentElement);
   }
-
 });
+
 
 // нажатие клавиши Enter по пину приводит к отображению соответствующего объявления
 map.addEventListener('keydown', function (evt) {
