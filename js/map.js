@@ -185,20 +185,21 @@ var doVisibleElement = function (element, hiddenClass) {
 
 var openPopup = function (index) {
   document.querySelector('.map__pins').appendChild(renderNotice(noticesArr, index));
-//  document.addEventListener('keydown', popupEscHandlier);
+  document.addEventListener('keydown', popupEscHandlier);
 };
 
-var closePopup = function (element) {
-  element.parentElement.removeChild(element);
+var closePopup = function () {
+  var mapCard = map.querySelector('.map__card');
+  mapCard.parentElement.removeChild(mapCard);
   map.querySelector('.map__pin--active').classList.remove('map__pin--active');
-//  document.removeEventListener('keydown', popupEscHandlier);
+  document.removeEventListener('keydown', popupEscHandlier);
 };
 
-// var popupEscHandlier = function (evt) {
-//   if (evt.keyCode === ESC_KEYCODE) {
-//     closePopup(mapCard);
-//   }
-// };
+var popupEscHandlier = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+};
 
 // заполняем поле Адреса
 var inputCoordinate = function () {
@@ -230,27 +231,19 @@ map.addEventListener('click', function (evt) {
   if (target.className === 'map__pin' || target.parentElement.className === 'map__pin') {
     var mapCard = map.querySelector('.map__card');
     evt.preventDefault();
+
     if (mapCard !== null) {
       closePopup(mapCard);
     }
     // ищем индекс пина в коллекции пинов
     indexVisible = target.className === 'map__pin' ? [].indexOf.call(mapPins, target) : [].indexOf.call(mapPins, target.parentElement);
     openPopup(indexVisible);
-    mapCard = map.querySelector('.map__card');
 
     // добавляем класс active по нажатому пину
     target.className === 'map__pin' ? target.classList.add('map__pin--active') : target.parentElement.classList.add('map__pin--active');
 
     // закрыть попап ESC
-    document.addEventListener('keydown', function (evt) {
-    //  debugger;
-      if (evt.keyCode === ESC_KEYCODE) {
-        if (mapCard !== null) {
-          closePopup(mapCard);
-        }
-
-      }
-    });
+    document.addEventListener('keydown', popupEscHandlier);
   }
 
   // закрыть попап кликом по кнопке CLOSE
@@ -259,7 +252,6 @@ map.addEventListener('click', function (evt) {
   }
 });
 
-
 // нажатие клавиши Enter по пину приводит к отображению соответствующего объявления
 map.addEventListener('keydown', function (evt) {
   var target = evt.target;
@@ -267,38 +259,23 @@ map.addEventListener('keydown', function (evt) {
 
   if (evt.keyCode === ENTER_KEYCODE) {
 
-    // Событие нажатия Enter по основному пину приводит к активации формы и отображению всех пинов
-    if (target === mainPin || target.parentElement.className === mainPin.className) {
-
-      // активация формы, карты
-      doVisibleElement(map, 'map--faded');
-      doVisibleElement(form, 'ad-form--disabled');
-      fieldsets.disabled = false;
-
-      // делаем видимыми все пины на карте
-      [].forEach.call(mapPins, function (item) {
-        doVisibleElement(item, 'hidden');
-      });
-    }
-
     if (target.className === 'map__pin' || target.parentElement.className === 'map__pin') {
+      var mapCard = map.querySelector('.map__card');
       evt.preventDefault();
 
       // прячем все попапы объявлений
-      [].forEach.call(mapCards, function (item) {
-        item.classList.add('hidden');
-      });
-
-      // у всех пинов удаляем класс active
-      removeActivePin();
-
+      if (mapCard !== null) {
+        closePopup(mapCard);
+      }
+      // ищем индекс пина в коллекции пинов
       indexVisible = target.className === 'map__pin' ? [].indexOf.call(mapPins, target) : [].indexOf.call(mapPins, target.parentElement);
-      openPopup(mapCards[indexVisible]);
+      openPopup(indexVisible);
 
       // добавляем класс active по нажатому пину
       target.className === 'map__pin' ? target.classList.add('map__pin--active') : target.parentElement.classList.add('map__pin--active');
     }
 
+    // закрыть попап НАЖАТИЕМ по кнопке CLOSE
     if (target.className === 'popup__close') {
       closePopup(target.parentElement);
     }
