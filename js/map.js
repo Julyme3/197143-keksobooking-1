@@ -187,6 +187,16 @@ var onClosePopupEnter = function (evt) {
   }
 };
 
+var onResetBtnClick = function () {
+  closePopup();
+};
+
+var onResetBtnEnter = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closePopup();
+  }
+};
+
 // создаем элемент из шаблона и  заполняем его данными
 var renderNotice = function (arrData) {
   var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
@@ -208,6 +218,9 @@ var renderNotice = function (arrData) {
 
   closeBtn.addEventListener('click', onClosePopupClick);
   closeBtn.addEventListener('keydown', onClosePopupEnter);
+  resetBtn.addEventListener('click', onResetBtnClick);
+  resetBtn.addEventListener('click', onResetBtnEnter);
+
   return noticeElement;
 };
 
