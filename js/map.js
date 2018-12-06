@@ -315,7 +315,7 @@ var onRoomNumberChange = function () {
     [].forEach.call(capacity.options, function (item) {
       item.selected = (ROOMS_CAPACITY[roomNumber.value][0] === item.value) ? true : false;
       item.hidden = (ROOMS_CAPACITY[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
-    })
+    });
   }
 };
 
@@ -356,14 +356,13 @@ var getdefaultStateSelectBox = function () {
   var defaultRoomNumber = roomNumber[roomNumber.selectedIndex].value;
 
   if (capacity.options.length > 0) {
-    debugger;
     [].forEach.call(capacity.options, function (item) {
       if (item.hidden) {
         item.hidden = false;
       }
 
       item.selected = (ROOMS_CAPACITY[defaultRoomNumber] === item.value) ? true : false;
-    })
+    });
   }
 };
 
