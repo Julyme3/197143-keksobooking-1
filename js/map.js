@@ -32,18 +32,22 @@ var NoticeData = {
   COORDINATE_Y: 500
 };
 
+var COUNT_NOTICES = 8;
+var map = document.querySelector('.map');
+var mainPin = map.querySelector('.map__pin--main');
+var mapPins = map.querySelector('.map__pins');
+var form = document.querySelector('.ad-form');
+var fieldsets = form.querySelectorAll('fieldset');
+var widthMap = map.offsetWidth;
+var mapPin = map.querySelector('.map__pin');
+var widthPin = mapPin.offsetWidth;
+var heightPin = mapPin.offsetHeight;
+var heightPinLeg = 22;
+
 var Pin = {
   MIN_LOCATION_Y: 130,
   MAX_LOCATION_Y: 630
 };
-
-var COUNT_NOTICES = 8;
-var map = document.querySelector('.map');
-var widthMap = map.offsetWidth;
-var mapPin = map.querySelector('.map__pin');
-var widthPin = mapPin.offsetWidth;
-var heightPin = mapPin.clientHeight;
-map.classList.remove('map--faded');
 
 // рандомное значение
 var getRandom = function (min, max) {
@@ -112,6 +116,21 @@ var renderPin = function (notice) {
   pinElement.style.top = notice.location.y - heightPin + 'px';
   pinElement.querySelector('img').src = notice.author.avatar;
   pinElement.querySelector('img').alt = notice.offer.title;
+
+  pinElement.addEventListener('click', function () {
+    closePopup();
+    pinElement.classList.add('map__pin--active');
+    openPopup(notice);
+  });
+
+  pinElement.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      closePopup();
+      pinElement.classList.add('map__pin--active');
+      openPopup(notice);
+    }
+  });
+
   return pinElement;
 };
 
@@ -121,7 +140,7 @@ var renderPins = function () {
   for (var i = 0; i < noticesArr.length; i++) {
     fragment.appendChild(renderPin(noticesArr[i]));
   }
-  document.querySelector('.map__pins').appendChild(fragment);
+  mapPins.appendChild(fragment);
 };
 
 // создаем блок с фотографиями
@@ -151,6 +170,16 @@ var createList = function (element, arrData) {
   return liElement;
 };
 
+var onClosePopupClick = function () {
+  closePopup();
+};
+
+var onClosePopupEnter = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closePopup();
+  }
+};
+
 // создаем элемент из шаблона и  заполняем его данными
 var renderNotice = function (arrData) {
   var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
@@ -162,14 +191,86 @@ var renderNotice = function (arrData) {
   noticeElement.querySelector('.popup__type').textContent = NoticeData.TYPES_HOUSES[arrData.offer.type].ru;
   noticeElement.querySelector('.popup__text--capacity').textContent = arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests;
   noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout;
-  noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, noticesArr[0]);
+  noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, arrData);
   noticeElement.querySelector('.popup__description').textContent = arrData.offer.description;
   noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
 
-  createImg(noticeElement, noticesArr[0]);
+  createImg(noticeElement, arrData);
 
+  var closeBtn = noticeElement.querySelector('.popup__close');
+
+  closeBtn.addEventListener('click', onClosePopupClick);
+  closeBtn.addEventListener('keydown', onClosePopupEnter);
   return noticeElement;
 };
-document.querySelector('.map__pins').appendChild(renderNotice(noticesArr[0]));
 
-renderPins();
+// Обработчики событий
+var ENTER_KEYCODE = 13;
+var ESC_KEYCODE = 27;
+var inputAddress = form.querySelector('#address');
+
+var doVisibleElement = function (element, hiddenClass) {
+  element.classList.remove(hiddenClass);
+};
+
+var removeActiveClass = function () {
+  var activePin = map.querySelector('.map__pin--active');
+  if (activePin) {
+    activePin.classList.remove('map__pin--active');
+  }
+};
+
+var openPopup = function (notice) {
+  mapPins.appendChild(renderNotice(notice));
+  document.addEventListener('keydown', onPopupEscPress);
+};
+
+var closePopup = function () {
+  var mapCard = map.querySelector('.popup');
+
+  if (mapCard) {
+    mapPins.removeChild(mapCard);
+    removeActiveClass();
+    document.removeEventListener('keydown', onPopupEscPress);
+  }
+};
+
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+};
+
+var changeFieldsetStatus = function (state) {
+  Array.from(fieldsets).forEach(function (item) {
+    item.disabled = state;
+  });
+};
+
+// заполняем поле Адреса
+var inputCoordinate = function (pinLeg) {
+  var offsetTop = heightPin + pinLeg || heightPin / 2;
+  var positionX = Math.round(parseInt(mainPin.style.left, 10) + widthPin / 2);
+  var positionY = Math.round(parseInt(mainPin.style.top, 10) + offsetTop);
+  inputAddress.value = positionX + ', ' + positionY;
+};
+
+// заполняем поле Адреса
+var onMainPinMouseUp = function () {
+  // активация формы, карты
+  doVisibleElement(map, 'map--faded');
+  doVisibleElement(form, 'ad-form--disabled');
+
+  changeFieldsetStatus(false);
+
+  // пересчет координат адреса
+  inputCoordinate(heightPinLeg);
+
+  // делаем видимыми все пины на карте
+  renderPins();
+
+  mainPin.removeEventListener('mouseup', onMainPinMouseUp);
+};
+
+inputCoordinate();
+mainPin.addEventListener('mouseup', onMainPinMouseUp);
