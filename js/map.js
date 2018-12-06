@@ -10,16 +10,20 @@ var NoticeData = {
   HOUSES_ARRAY: ['palace', 'flat', 'house', 'bungalo'],
   TYPES_HOUSES: {
     'palace': {
-      'ru': 'Дворец'
+      'ru': 'Дворец',
+      'min': 10000
     },
     'flat': {
-      'ru': 'Квартира'
+      'ru': 'Квартира',
+      'min': 1000
     },
     'house': {
-      'ru': 'Дом'
+      'ru': 'Дом',
+      'min': 5000
     },
     'bungalo': {
-      'ru': 'Бунгало'
+      'ru': 'Бунгало',
+      'min': 0
     }
 
   },
@@ -39,9 +43,8 @@ var mapPins = map.querySelector('.map__pins');
 var form = document.querySelector('.ad-form');
 var fieldsets = form.querySelectorAll('fieldset');
 var widthMap = map.offsetWidth;
-var mapPin = map.querySelector('.map__pin');
-var widthPin = mapPin.offsetWidth;
-var heightPin = mapPin.offsetHeight;
+var widthPin = mainPin.offsetWidth;
+var heightPin = mainPin.offsetHeight;
 var heightPinLeg = 22;
 
 var Pin = {
@@ -131,6 +134,10 @@ var renderPin = function (notice) {
     }
   });
 
+  resetBtn.addEventListener('click', function () {
+    pinElement.classList.add('hidden');
+  });
+
   return pinElement;
 };
 
@@ -213,6 +220,10 @@ var doVisibleElement = function (element, hiddenClass) {
   element.classList.remove(hiddenClass);
 };
 
+var doHiddenElement = function (element, hiddenClass) {
+  element.classList.add(hiddenClass);
+};
+
 var removeActiveClass = function () {
   var activePin = map.querySelector('.map__pin--active');
   if (activePin) {
@@ -284,6 +295,7 @@ var timein = form.querySelector('#timein');
 var timeout = form.querySelector('#timeout');
 var inputs = form.querySelectorAll('input');
 var submit = form.querySelector('.ad-form__submit');
+var resetBtn = form.querySelector('.ad-form__reset');
 var ROOMS_CAPACITY = {
   '1': ['1'],
   '2': ['2', '1'],
@@ -325,29 +337,55 @@ var onSubmitForm = function (evt) {
   evt.preventDefault();
   var isValid = true;
 
-  [].forEach(inputs, function (item) {
+  [].forEach.call(inputs, function (item) {
     item.style.border = 'none';
 
     if (item.checkValidity() === false) {
       isValid = false;
-      item.style.border = '2px solid green';
-    } else {
       item.style.border = '2px solid red';
     }
   });
 
   if (isValid) {
     form.submit();
-    // сбрасываем введенные значения в поля формы form
     form.reset();
   }
 };
 
-submit.addEventListener('input', function (evt) {
+var getdefaultStateSelectBox = function () {
+  var defaultRoomNumber = roomNumber[roomNumber.selectedIndex].value;
 
-  if (evt.target === 'INPUT') {
-    evt.target.style.border = 'none';
+  if (capacity.options.length > 0) {
+    debugger;
+    [].forEach.call(capacity.options, function (item) {
+      if (item.hidden) {
+        item.hidden = false;
+      }
+
+      item.selected = (ROOMS_CAPACITY[defaultRoomNumber] === item.value) ? true : false;
+    })
   }
-});
+};
 
-submit.addEventListener('submit', onSubmitForm);
+var onClickReset = function (evt) {
+  evt.preventDefault();
+  form.reset();
+  // активация формы, карты
+  doHiddenElement(map, 'map--faded');
+  doHiddenElement(form, 'ad-form--disabled');
+
+  changeFieldsetStatus(true);
+  inputCoordinate();
+  var defaultType = type[type.selectedIndex].value;
+  price.placeholder = NoticeData.TYPES_HOUSES[defaultType].min;
+  getdefaultStateSelectBox();
+};
+
+resetBtn.addEventListener('click', onClickReset);
+submit.addEventListener('click', onSubmitForm);
+
+[].forEach.call(inputs, function (item) {
+  item.addEventListener('input', function () {
+    item.style.border = 'none';
+  });
+});
