@@ -274,3 +274,80 @@ var onMainPinMouseUp = function () {
 
 inputCoordinate();
 mainPin.addEventListener('mouseup', onMainPinMouseUp);
+
+// Валидация формы// Валидация формы обхявления
+var type = form.querySelector('#type');
+var price = form.querySelector('#price');
+var roomNumber = form.querySelector('#room_number');
+var capacity = form.querySelector('#capacity');
+var timein = form.querySelector('#timein');
+var timeout = form.querySelector('#timeout');
+var inputs = form.querySelectorAll('input');
+var submit = form.querySelector('.ad-form__submit');
+var ROOMS_CAPACITY = {
+  '1': ['1'],
+  '2': ['2', '1'],
+  '3': ['3', '2', '1'],
+  '100': ['0']
+};
+
+// поля Тип жилья - цена
+var onTypeHousesChange = function () {
+  var currentValue = type.value;
+  price.placeholder = NoticeData.TYPES_HOUSES[currentValue].min;
+};
+
+var onRoomNumberChange = function () {
+
+  if (capacity.options.length > 0) {
+    [].forEach.call(capacity.options, function (item) {
+      item.selected = (ROOMS_CAPACITY[roomNumber.value][0] === item.value) ? true : false;
+      item.hidden = (ROOMS_CAPACITY[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
+    })
+  }
+};
+
+onRoomNumberChange(); // сразу прячем неподходящие options для Кол-ва гостей
+
+roomNumber.addEventListener('change', onRoomNumberChange);
+type.addEventListener('change', onTypeHousesChange);
+
+timein.addEventListener('change', function () {
+  timeout.value = timein.value;
+});
+
+timeout.addEventListener('change', function () {
+  timein.value = timeout.value;
+});
+
+// Обводим невалидные поля красной рамкой
+var onSubmitForm = function (evt) {
+  evt.preventDefault();
+  var isValid = true;
+
+  [].forEach(inputs, function (item) {
+    item.style.border = 'none';
+
+    if (item.checkValidity() === false) {
+      isValid = false;
+      item.style.border = '2px solid green';
+    } else {
+      item.style.border = '2px solid red';
+    }
+  });
+
+  if (isValid) {
+    form.submit();
+    // сбрасываем введенные значения в поля формы form
+    form.reset();
+  }
+};
+
+submit.addEventListener('input', function (evt) {
+
+  if (evt.target === 'INPUT') {
+    evt.target.style.border = 'none';
+  }
+});
+
+submit.addEventListener('submit', onSubmitForm);
