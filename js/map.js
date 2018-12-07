@@ -345,10 +345,64 @@ timeout.addEventListener('change', function () {
   timein.value = timeout.value;
 });
 
-// Обводим невалидные поля красной рамкой
+// Кастомные сообщения об ошибке
+function CustomValidation() { }
+CustomValidation.prototype = {
+
+  invalidities: [],
+
+  checkValidity: function (input) {
+    var validity = input.validity;
+
+    if (validity.tooLong) {
+      this.addInvalidity('Максимальная длина — 100 символов.');
+    }
+
+    if (validity.tooShort) {
+      this.addInvalidity('Минимальная длина — 30 символов.');
+    }
+
+    if (validity.rangeOverflow) {
+      var max = input.max;
+      this.addInvalidity('Максимальное значение — 1 000 000 ' + max + '.');
+    }
+
+    if (validity.valueMissing) {
+      this.addInvalidity('Это поле обязательно для заполнения.');
+    }
+  },
+
+  addInvalidity: function (message) {
+    this.invalidities = [];
+    this.invalidities.push(message);
+  },
+
+  getInvalidities: function () {
+    return this.invalidities.join('. \n');
+  },
+
+  getInvaliditiesForHTML: function () {
+    return this.invalidities.join('. <br>');
+  }
+};
+
+var removeErrorMsg = function () {
+  var errors = document.querySelectorAll('.error-message'); // сообщения об ошибке
+  if (errors) {
+    [].forEach.call(errors, function (error) {
+      error.remove();
+    });
+  }
+
+  [].forEach.call(inputs, function (item) {
+    item.style.border = 'none';
+  });
+};
+
 var onSubmitForm = function (evt) {
   evt.preventDefault();
   var isValid = true;
+  removeErrorMsg();
 
   [].forEach.call(inputs, function (item) {
     item.style.border = 'none';
@@ -356,6 +410,13 @@ var onSubmitForm = function (evt) {
     if (item.checkValidity() === false) {
       isValid = false;
       item.style.border = '2px solid red';
+      var inputCustomValidation = new CustomValidation();
+      inputCustomValidation.checkValidity(item);
+      var customValidityMessage = inputCustomValidation.getInvalidities();
+      item.setCustomValidity(customValidityMessage);
+
+      var customValidityMessageForHTML = inputCustomValidation.getInvaliditiesForHTML();
+      item.insertAdjacentHTML('afterEnd', '<p class="error-message" style="color: red;">' + customValidityMessageForHTML + '</p>');
     }
   });
 
@@ -366,7 +427,6 @@ var onSubmitForm = function (evt) {
 };
 
 var getdefaultStateSelectBox = function () {
-  var defaultRoomNumber = roomNumber[roomNumber.selectedIndex].value;
 
   if (capacity.options.length > 0) {
     [].forEach.call(capacity.options, function (item) {
@@ -389,6 +449,10 @@ var onClickReset = function (evt) {
   var defaultType = type[type.selectedIndex].value;
   price.placeholder = NoticeData.TYPES_HOUSES[defaultType].min;
   getdefaultStateSelectBox();
+  removeErrorMsg();
+
+  // добавляем слушатель на главный пин
+  mainPin.addEventListener('mouseup', onMainPinMouseUp);
 };
 
 resetBtn.addEventListener('click', onClickReset);
