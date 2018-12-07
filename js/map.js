@@ -373,8 +373,6 @@ var getdefaultStateSelectBox = function () {
       if (item.hidden) {
         item.hidden = false;
       }
-
-      item.selected = (ROOMS_CAPACITY[defaultRoomNumber] === item.value) ? true : false;
     });
   }
 };
