@@ -394,8 +394,8 @@ var onClickReset = function (evt) {
 resetBtn.addEventListener('click', onClickReset);
 submit.addEventListener('click', onSubmitForm);
 
-[].forEach.call(inputs, function (item) {
-  item.addEventListener('input', function () {
-    item.style.border = 'none';
-  });
+form.addEventListener('input', function (evt) {
+  if (evt.target.tagName === 'INPUT') {
+    evt.target.style.border = 'none';
+  }
 });
