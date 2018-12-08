@@ -10,16 +10,20 @@ var NoticeData = {
   HOUSES_ARRAY: ['palace', 'flat', 'house', 'bungalo'],
   TYPES_HOUSES: {
     'palace': {
-      'ru': 'Дворец'
+      'ru': 'Дворец',
+      'min': 10000
     },
     'flat': {
-      'ru': 'Квартира'
+      'ru': 'Квартира',
+      'min': 1000
     },
     'house': {
-      'ru': 'Дом'
+      'ru': 'Дом',
+      'min': 5000
     },
     'bungalo': {
-      'ru': 'Бунгало'
+      'ru': 'Бунгало',
+      'min': 0
     }
 
   },
@@ -39,9 +43,8 @@ var mapPins = map.querySelector('.map__pins');
 var form = document.querySelector('.ad-form');
 var fieldsets = form.querySelectorAll('fieldset');
 var widthMap = map.offsetWidth;
-var mapPin = map.querySelector('.map__pin');
-var widthPin = mapPin.offsetWidth;
-var heightPin = mapPin.offsetHeight;
+var widthPin = mainPin.offsetWidth;
+var heightPin = mainPin.offsetHeight;
 var heightPinLeg = 22;
 
 var Pin = {
@@ -131,6 +134,10 @@ var renderPin = function (notice) {
     }
   });
 
+  resetBtn.addEventListener('click', function () {
+    pinElement.classList.add('hidden');
+  });
+
   return pinElement;
 };
 
@@ -180,6 +187,16 @@ var onClosePopupEnter = function (evt) {
   }
 };
 
+var onResetBtnClick = function () {
+  closePopup();
+};
+
+var onResetBtnEnter = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closePopup();
+  }
+};
+
 // создаем элемент из шаблона и  заполняем его данными
 var renderNotice = function (arrData) {
   var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
@@ -201,6 +218,9 @@ var renderNotice = function (arrData) {
 
   closeBtn.addEventListener('click', onClosePopupClick);
   closeBtn.addEventListener('keydown', onClosePopupEnter);
+  resetBtn.addEventListener('click', onResetBtnClick);
+  resetBtn.addEventListener('click', onResetBtnEnter);
+
   return noticeElement;
 };
 
@@ -211,6 +231,10 @@ var inputAddress = form.querySelector('#address');
 
 var doVisibleElement = function (element, hiddenClass) {
   element.classList.remove(hiddenClass);
+};
+
+var doHiddenElement = function (element, hiddenClass) {
+  element.classList.add(hiddenClass);
 };
 
 var removeActiveClass = function () {
@@ -274,3 +298,168 @@ var onMainPinMouseUp = function () {
 
 inputCoordinate();
 mainPin.addEventListener('mouseup', onMainPinMouseUp);
+
+// Валидация формы// Валидация формы обхявления
+var type = form.querySelector('#type');
+var price = form.querySelector('#price');
+var roomNumber = form.querySelector('#room_number');
+var capacity = form.querySelector('#capacity');
+var timein = form.querySelector('#timein');
+var timeout = form.querySelector('#timeout');
+var inputs = form.querySelectorAll('input');
+var submit = form.querySelector('.ad-form__submit');
+var resetBtn = form.querySelector('.ad-form__reset');
+var ROOMS_CAPACITY = {
+  '1': ['1'],
+  '2': ['2', '1'],
+  '3': ['3', '2', '1'],
+  '100': ['0']
+};
+
+// поля Тип жилья - цена
+var onTypeHousesChange = function () {
+  var currentValue = type.value;
+  price.placeholder = NoticeData.TYPES_HOUSES[currentValue].min;
+};
+
+var onRoomNumberChange = function () {
+
+  if (capacity.options.length > 0) {
+    [].forEach.call(capacity.options, function (item) {
+      item.selected = (ROOMS_CAPACITY[roomNumber.value][0] === item.value) ? true : false;
+      item.hidden = (ROOMS_CAPACITY[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
+    });
+  }
+};
+
+onRoomNumberChange(); // сразу прячем неподходящие options для Кол-ва гостей
+
+roomNumber.addEventListener('change', onRoomNumberChange);
+type.addEventListener('change', onTypeHousesChange);
+
+timein.addEventListener('change', function () {
+  timeout.value = timein.value;
+});
+
+timeout.addEventListener('change', function () {
+  timein.value = timeout.value;
+});
+
+// Кастомные сообщения об ошибке
+function CustomValidation() { }
+CustomValidation.prototype = {
+
+  invalidities: [],
+
+  checkValidity: function (input) {
+    var validity = input.validity;
+
+    if (validity.tooLong) {
+      this.addInvalidity('Максимальная длина — 100 символов.');
+    }
+
+    if (validity.tooShort) {
+      this.addInvalidity('Минимальная длина — 30 символов.');
+    }
+
+    if (validity.rangeOverflow) {
+      var max = input.max;
+      this.addInvalidity('Максимальное значение — 1 000 000 ' + max + '.');
+    }
+
+    if (validity.valueMissing) {
+      this.addInvalidity('Это поле обязательно для заполнения.');
+    }
+  },
+
+  addInvalidity: function (message) {
+    this.invalidities = [];
+    this.invalidities.push(message);
+  },
+
+  getInvalidities: function () {
+    return this.invalidities.join('. \n');
+  },
+
+  getInvaliditiesForHTML: function () {
+    return this.invalidities.join('. <br>');
+  }
+};
+
+var removeErrorMsg = function () {
+  var errors = document.querySelectorAll('.error-message'); // сообщения об ошибке
+  if (errors) {
+    [].forEach.call(errors, function (error) {
+      error.remove();
+    });
+  }
+
+  [].forEach.call(inputs, function (item) {
+    item.style.border = 'none';
+  });
+};
+
+var onSubmitForm = function (evt) {
+  evt.preventDefault();
+  var isValid = true;
+  removeErrorMsg();
+
+  [].forEach.call(inputs, function (item) {
+    item.style.border = 'none';
+
+    if (item.checkValidity() === false) {
+      isValid = false;
+      item.style.border = '2px solid red';
+      var inputCustomValidation = new CustomValidation();
+      inputCustomValidation.checkValidity(item);
+      var customValidityMessage = inputCustomValidation.getInvalidities();
+      item.setCustomValidity(customValidityMessage);
+
+      var customValidityMessageForHTML = inputCustomValidation.getInvaliditiesForHTML();
+      item.insertAdjacentHTML('afterEnd', '<p class="error-message" style="color: red;">' + customValidityMessageForHTML + '</p>');
+    }
+  });
+
+  if (isValid) {
+    form.submit();
+    form.reset();
+  }
+};
+
+var getdefaultStateSelectBox = function () {
+
+  if (capacity.options.length > 0) {
+    [].forEach.call(capacity.options, function (item) {
+      if (item.hidden) {
+        item.hidden = false;
+      }
+    });
+  }
+};
+
+var onClickReset = function (evt) {
+  evt.preventDefault();
+  form.reset();
+  // активация формы, карты
+  doHiddenElement(map, 'map--faded');
+  doHiddenElement(form, 'ad-form--disabled');
+
+  changeFieldsetStatus(true);
+  inputCoordinate();
+  var defaultType = type[type.selectedIndex].value;
+  price.placeholder = NoticeData.TYPES_HOUSES[defaultType].min;
+  getdefaultStateSelectBox();
+  removeErrorMsg();
+
+  // добавляем слушатель на главный пин
+  mainPin.addEventListener('mouseup', onMainPinMouseUp);
+};
+
+resetBtn.addEventListener('click', onClickReset);
+submit.addEventListener('click', onSubmitForm);
+
+form.addEventListener('input', function (evt) {
+  if (evt.target.tagName === 'INPUT') {
+    evt.target.style.border = 'none';
+  }
+});
