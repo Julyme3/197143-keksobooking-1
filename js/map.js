@@ -43,13 +43,16 @@ var mapPins = map.querySelector('.map__pins');
 var form = document.querySelector('.ad-form');
 var fieldsets = form.querySelectorAll('fieldset');
 var widthMap = map.offsetWidth;
-var widthPin = mainPin.offsetWidth;
-var heightPin = mainPin.offsetHeight;
-var heightPinLeg = 22;
 
 var Pin = {
   MIN_LOCATION_Y: 130,
-  MAX_LOCATION_Y: 630
+  MAX_LOCATION_Y: 630,
+  INITIAL_X: 570,
+  INITIAL_Y: 375,
+  INITIAL_LEG_HEIGHT: 0,
+  HEIGHT_LEG: 22,
+  HEIGHT: mainPin.offsetHeight,
+  WIDTH: mainPin.offsetWidth
 };
 
 // рандомное значение
@@ -115,8 +118,8 @@ var renderPin = function (notice) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
   pinElement.querySelector('img').src = notice.author.avatar;
-  pinElement.style.left = notice.location.x - (widthPin / 2) + 'px';
-  pinElement.style.top = notice.location.y - heightPin + 'px';
+  pinElement.style.left = notice.location.x - (Pin.WIDTH / 2) + 'px';
+  pinElement.style.top = notice.location.y - Pin.HEIGHT + 'px';
   pinElement.querySelector('img').src = notice.author.avatar;
   pinElement.querySelector('img').alt = notice.offer.title;
 
@@ -135,7 +138,7 @@ var renderPin = function (notice) {
   });
 
   resetBtn.addEventListener('click', function () {
-    pinElement.classList.add('hidden');
+    pinElement.remove();
   });
 
   return pinElement;
@@ -272,32 +275,70 @@ var changeFieldsetStatus = function (state) {
 };
 
 // заполняем поле Адреса
-var inputCoordinate = function (pinLeg) {
-  var offsetTop = heightPin + pinLeg || heightPin / 2;
-  var positionX = Math.round(parseInt(mainPin.style.left, 10) + widthPin / 2);
-  var positionY = Math.round(parseInt(mainPin.style.top, 10) + offsetTop);
+var inputCoordinate = function (offsetTop, pinX, pinY) {
+  var currentX = pinX || mainPin.style.left;
+  var currentY = pinY || mainPin.style.top;
+  var positionX = Math.round(parseInt(currentX, 10) + Pin.WIDTH / 2);
+  var positionY = Math.round(parseInt(currentY, 10) + offsetTop);
   inputAddress.value = positionX + ', ' + positionY;
 };
 
-// заполняем поле Адреса
-var onMainPinMouseUp = function () {
-  // активация формы, карты
+// активация формы, карты
+var onMainPinMouseDownActivate = function () {
   doVisibleElement(map, 'map--faded');
   doVisibleElement(form, 'ad-form--disabled');
-
   changeFieldsetStatus(false);
-
-  // пересчет координат адреса
-  inputCoordinate(heightPinLeg);
-
-  // делаем видимыми все пины на карте
   renderPins();
-
-  mainPin.removeEventListener('mouseup', onMainPinMouseUp);
+  mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
 };
 
-inputCoordinate();
-mainPin.addEventListener('mouseup', onMainPinMouseUp);
+// Перемещение главного пина
+var onMainPinMouseDown = function (evt) {
+  evt.preventDefault();
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+  var onMainPinMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    if (mainPin.offsetLeft <= 0) {
+      mainPin.style.left = 0 + 'px';
+    } else if (mainPin.offsetLeft + Pin.WIDTH > widthMap) {
+      mainPin.style.left = widthMap - Pin.WIDTH + 'px';
+    }
+
+    if (mainPin.offsetTop + Pin.HEIGHT + Pin.HEIGHT_LEG < Pin.MIN_LOCATION_Y) {
+      mainPin.style.top = Pin.MIN_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG + 'px';
+    } else if (mainPin.offsetTop + Pin.HEIGHT + Pin.HEIGHT_LEG > Pin.MAX_LOCATION_Y) {
+      mainPin.style.top = Pin.MAX_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG + 'px';
+    }
+    mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
+    mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
+    // пересчет координат адреса
+    inputCoordinate(Pin.HEIGHT + Pin.HEIGHT_LEG);
+  };
+
+  var onMainPinMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    document.removeEventListener('mousemove', onMainPinMouseMove);
+    document.removeEventListener('mouseup', onMainPinMouseUp);
+  };
+  document.addEventListener('mousemove', onMainPinMouseMove);
+  document.addEventListener('mouseup', onMainPinMouseUp);
+};
+
+inputCoordinate(Pin.HEIGHT / 2);
+mainPin.addEventListener('mousedown', onMainPinMouseDown);
+mainPin.addEventListener('mousedown', onMainPinMouseDownActivate);
 
 // Валидация формы// Валидация формы обхявления
 var type = form.querySelector('#type');
@@ -395,7 +436,7 @@ var removeErrorMsg = function () {
   }
 
   [].forEach.call(inputs, function (item) {
-    item.style.border = 'none';
+    item.style.boxShadow = 'none';
   });
 };
 
@@ -405,11 +446,11 @@ var onSubmitForm = function (evt) {
   removeErrorMsg();
 
   [].forEach.call(inputs, function (item) {
-    item.style.border = 'none';
+    item.style.boxShadow = 'none';
 
     if (item.checkValidity() === false) {
       isValid = false;
-      item.style.border = '2px solid red';
+      item.style.boxShadow = '0 0 2px 2px #ff6547';
       var inputCustomValidation = new CustomValidation();
       inputCustomValidation.checkValidity(item);
       var customValidityMessage = inputCustomValidation.getInvalidities();
@@ -440,19 +481,18 @@ var getdefaultStateSelectBox = function () {
 var onClickReset = function (evt) {
   evt.preventDefault();
   form.reset();
-  // активация формы, карты
   doHiddenElement(map, 'map--faded');
   doHiddenElement(form, 'ad-form--disabled');
 
   changeFieldsetStatus(true);
-  inputCoordinate();
+  inputCoordinate(Pin.HEIGHT / 2, Pin.INITIAL_X, Pin.INITIAL_Y);
+  mainPin.style.left = Pin.INITIAL_X + 'px';
+  mainPin.style.top = Pin.INITIAL_Y + 'px';
   var defaultType = type[type.selectedIndex].value;
   price.placeholder = NoticeData.TYPES_HOUSES[defaultType].min;
   getdefaultStateSelectBox();
   removeErrorMsg();
-
-  // добавляем слушатель на главный пин
-  mainPin.addEventListener('mouseup', onMainPinMouseUp);
+  mainPin.addEventListener('mouseup', onMainPinMouseDownActivate);
 };
 
 resetBtn.addEventListener('click', onClickReset);
@@ -460,6 +500,6 @@ submit.addEventListener('click', onSubmitForm);
 
 form.addEventListener('input', function (evt) {
   if (evt.target.tagName === 'INPUT') {
-    evt.target.style.border = 'none';
+    evt.target.style.boxShadow = 'none';
   }
 });
