@@ -293,12 +293,32 @@ var onMainPinMouseDownActivate = function () {
 };
 
 // Перемещение главного пина
+var checkBoundaries = function () {
+  var MIN_LEFT_COORDS = 0;
+  var MIN_TOP_COORDS = Pin.MIN_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG;
+  var maxLeftCoords = widthMap - Pin.WIDTH;
+  var maxTopCoords = 630 - Pin.HEIGHT - Pin.HEIGHT_LEG;
+
+  if (mainPin.offsetLeft < MIN_LEFT_COORDS) {
+    mainPin.style.left = MIN_LEFT_COORDS + 'px';
+  } else if (mainPin.offsetLeft > maxLeftCoords) {
+    mainPin.style.left = maxLeftCoords + 'px';
+  }
+
+  if (mainPin.offsetTop < MIN_TOP_COORDS) {
+    mainPin.style.top = MIN_TOP_COORDS + 'px';
+  } else if (mainPin.offsetTop > maxTopCoords) {
+    mainPin.style.top = maxTopCoords + 'px';
+  }
+};
+
 var onMainPinMouseDown = function (evt) {
   evt.preventDefault();
   var startCoords = {
     x: evt.clientX,
     y: evt.clientY
   };
+
   var onMainPinMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
     var shift = {
@@ -310,25 +330,15 @@ var onMainPinMouseDown = function (evt) {
       y: moveEvt.clientY
     };
 
-    if (mainPin.offsetLeft <= 0) {
-      mainPin.style.left = 0 + 'px';
-    } else if (mainPin.offsetLeft + Pin.WIDTH > widthMap) {
-      mainPin.style.left = widthMap - Pin.WIDTH + 'px';
-    }
-
-    if (mainPin.offsetTop + Pin.HEIGHT + Pin.HEIGHT_LEG < Pin.MIN_LOCATION_Y) {
-      mainPin.style.top = Pin.MIN_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG + 'px';
-    } else if (mainPin.offsetTop + Pin.HEIGHT + Pin.HEIGHT_LEG > Pin.MAX_LOCATION_Y) {
-      mainPin.style.top = Pin.MAX_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG + 'px';
-    }
     mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
     mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
-    // пересчет координат адреса
+    checkBoundaries();
     inputCoordinate(Pin.HEIGHT + Pin.HEIGHT_LEG);
   };
 
   var onMainPinMouseUp = function (upEvt) {
     upEvt.preventDefault();
+    inputCoordinate(Pin.HEIGHT + Pin.HEIGHT_LEG);
     document.removeEventListener('mousemove', onMainPinMouseMove);
     document.removeEventListener('mouseup', onMainPinMouseUp);
   };
