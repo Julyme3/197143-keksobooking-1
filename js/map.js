@@ -297,7 +297,7 @@ var checkBoundaries = function () {
   var MIN_LEFT_COORDS = 0;
   var MIN_TOP_COORDS = Pin.MIN_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG;
   var maxLeftCoords = widthMap - Pin.WIDTH;
-  var maxTopCoords = 630 - Pin.HEIGHT - Pin.HEIGHT_LEG;
+  var maxTopCoords = Pin.MAX_LOCATION_Y - Pin.HEIGHT - Pin.HEIGHT_LEG;
 
   if (mainPin.offsetLeft < MIN_LEFT_COORDS) {
     mainPin.style.left = MIN_LEFT_COORDS + 'px';
