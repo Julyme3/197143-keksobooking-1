@@ -24,7 +24,7 @@
   };
 
   var onPopupEscPress = function (evt) {
-    window.utils.isEscEvent(evt, window.main.closePopup);
+    window.utils.isEscEvent(evt, closePopup);
   };
 
   window.map = {
