@@ -8,6 +8,7 @@
     MIN_COUNT_ROOMS: 1,
     MAX_COUNT_ROOMS: 5,
     MAX_COUNT_GUESTS: 100,
+    COUNT: 8,
     HOUSES_ARRAY: ['palace', 'flat', 'house', 'bungalo'],
     TYPES_HOUSES: {
       'palace': {
@@ -37,7 +38,6 @@
     COORDINATE_Y: 500
   };
 
-  var COUNT_NOTICES = 8;
   var map = document.querySelector('.map');
   var mainPin = map.querySelector('.map__pin--main');
   var widthMap = map.offsetWidth;
@@ -77,7 +77,7 @@
     var noticesArr = []; // массив с объявлениями
     var arrTitles = shuffleArray(NoticeData.TITLES); // массив неповторяющихся значений
 
-    for (var i = 0; i < COUNT_NOTICES; i++) {
+    for (var i = 0; i < NoticeData.COUNT; i++) {
       notice =
         {
           'author': {

@@ -59,12 +59,47 @@
   var doVisibleElement = function (element, hiddenClass) {
     element.classList.remove(hiddenClass);
   };
+
+  var successHandler = function (array) {
+
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < window.data.notice.COUNT; i++) {
+      if (array[i].offer) {
+        fragment.appendChild(window.pins.render(array[i]));
+      } else {
+        return;
+      }
+    }
+    window.data.mapPins.appendChild(fragment);
+
+  };
+
+  var errorHandler = function () {
+    var errorMsgTemplate = document.querySelector('#error').content.querySelector('.error');
+    var errorMsgElement = errorMsgTemplate.cloneNode(true);
+    document.querySelector('main').appendChild(errorMsgElement);
+
+    var removeErrMsg = function () {
+      errorMsgElement.remove();
+      window.form.getDefaultMapState();
+    };
+
+    document.addEventListener('click', function () {
+      removeErrMsg();
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      window.utils.isEscEvent(evt, removeErrMsg);
+    });
+  };
+
   // активация формы, карты
   var onMainPinMouseDownActivate = function () {
     doVisibleElement(window.data.map, 'map--faded');
     doVisibleElement(form, 'ad-form--disabled');
     window.form.changeFieldsetStatus(false);
-    window.pins.render();
+    window.backend.load(successHandler, errorHandler);
     window.data.mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
   };
 

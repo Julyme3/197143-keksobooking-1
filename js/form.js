@@ -111,8 +111,23 @@
     });
   };
 
+  var successHandler = function () {
+    var successMsgTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successMsgElement = successMsgTemplate.cloneNode(true);
+    document.querySelector('main').appendChild(successMsgElement);
+  };
+
+  // var errorHandler = function () {
+  //
+  // };
+
   var onSubmitForm = function (evt) {
     evt.preventDefault();
+    //debugger;
+    window.backend.upload(new FormData(form), function (response) {
+      debugger;
+      console.log('done');
+    });
     var isValid = true;
     removeErrorMsg();
 
@@ -159,21 +174,23 @@
     });
   };
 
-  var onClickReset = function (evt) {
-    evt.preventDefault();
-    form.reset();
+  var getDefaultMapState = function () {
     doHiddenElement(window.data.map, 'map--faded');
     doHiddenElement(form, 'ad-form--disabled');
-
     changeFieldsetStatus(true);
     inputCoordinate(window.data.pin.HEIGHT / 2, window.data.pin.INITIAL_X, window.data.pin.INITIAL_Y);
     window.data.mainPin.style.left = window.data.pin.INITIAL_X + 'px';
     window.data.mainPin.style.top = window.data.pin.INITIAL_Y + 'px';
+    window.data.mainPin.addEventListener('mouseup', window.dragNdrop.onMainPinMouseDownActivate);
+  };
+  var onClickReset = function (evt) {
+    evt.preventDefault();
+    form.reset();
+    getDefaultMapState();
     var defaultType = type[type.selectedIndex].value;
     price.placeholder = window.data.notice.TYPES_HOUSES[defaultType].min;
     getdefaultStateSelectBox();
     removeErrorMsg();
-    window.data.mainPin.addEventListener('mouseup', window.dragNdrop.onMainPinMouseDownActivate);
   };
 
   resetBtn.addEventListener('click', onClickReset);
@@ -190,6 +207,7 @@
   window.form = {
     inputCoordinate: inputCoordinate,
     changeFieldsetStatus: changeFieldsetStatus,
-    resetBtn: resetBtn
+    resetBtn: resetBtn,
+    getDefaultMapState: getDefaultMapState
   };
 })();
