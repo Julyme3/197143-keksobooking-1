@@ -16,6 +16,7 @@
       pinElement.classList.add('map__pin--active');
       window.map.openPopup(notice);
     };
+    
     pinElement.addEventListener('click', function () {
       onActivatePin();
     });

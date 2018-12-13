@@ -13,6 +13,7 @@
   var resetBtn = form.querySelector('.ad-form__reset');
   var inputAddress = form.querySelector('#address');
   var fieldsets = form.querySelectorAll('fieldset');
+  var mapPinCollection = document.querySelectorAll('.map__pin:not(.map__pin--main)');
   var ROOMS_CAPACITY = {
     '1': ['1'],
     '2': ['2', '1'],
@@ -115,19 +116,23 @@
     var successMsgTemplate = document.querySelector('#success').content.querySelector('.success');
     var successMsgElement = successMsgTemplate.cloneNode(true);
     document.querySelector('main').appendChild(successMsgElement);
-  };
 
-  // var errorHandler = function () {
-  //
-  // };
+    var removeSuccessMsg = function () {
+      successMsgElement.remove();
+      getDefaultMapState();
+    };
+
+    document.addEventListener('click', function () {
+      removeSuccessMsg();
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      window.utils.isEscEvent(evt, removeSuccessMsg);
+    });
+  };
 
   var onSubmitForm = function (evt) {
     evt.preventDefault();
-    //debugger;
-    window.backend.upload(new FormData(form), function (response) {
-      debugger;
-      console.log('done');
-    });
     var isValid = true;
     removeErrorMsg();
 
@@ -148,7 +153,7 @@
     });
 
     if (isValid) {
-      form.submit();
+      window.backend.upload(new FormData(form), successHandler, window.utils.errorHandler);
       form.reset();
     }
   };
@@ -174,10 +179,18 @@
     });
   };
 
+  var removePins = function () {
+    debugger;
+    Array.from(mapPinCollection).forEach(function (item) {
+      item.remove();
+    });
+  };
+
   var getDefaultMapState = function () {
     doHiddenElement(window.data.map, 'map--faded');
     doHiddenElement(form, 'ad-form--disabled');
     changeFieldsetStatus(true);
+    removePins();
     inputCoordinate(window.data.pin.HEIGHT / 2, window.data.pin.INITIAL_X, window.data.pin.INITIAL_Y);
     window.data.mainPin.style.left = window.data.pin.INITIAL_X + 'px';
     window.data.mainPin.style.top = window.data.pin.INITIAL_Y + 'px';

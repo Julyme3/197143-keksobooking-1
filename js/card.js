@@ -5,25 +5,27 @@
     var blockPhoto = element.querySelector('.popup__photos'); // куда вставляем элементы img
 
     blockPhoto.innerHTML = '';
-
-    for (var i = 0; i <= arrData.offer.photos.length - 1; i++) {
-      var imgElement = document.createElement('img');
-      imgElement.className = 'popup__photo';
-      imgElement.style.width = 45 + 'px';
-      imgElement.style.height = 40 + 'px';
-      imgElement.alt = 'Фотография жилья';
-      imgElement.src = arrData.offer.photos[i];
-      blockPhoto.appendChild(imgElement);
+    if (arrData.offer.photos.length) {
+      for (var i = 0; i <= arrData.offer.photos.length - 1; i++) {
+        var imgElement = document.createElement('img');
+        imgElement.className = 'popup__photo';
+        imgElement.style.width = 45 + 'px';
+        imgElement.style.height = 40 + 'px';
+        imgElement.alt = 'Фотография жилья';
+        imgElement.src = arrData.offer.photos[i];
+        blockPhoto.appendChild(imgElement);
+      }
     }
+
   };
 
   var createList = function (element, arrData) {
     var liElement = '';
-
-    for (var i = 0; i < arrData.offer.features.length; i++) {
-      liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>';
+    if (arrData.offer.features.length) {
+      for (var i = 0; i < arrData.offer.features.length; i++) {
+        liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>';
+      }
     }
-
     return liElement;
   };
 
@@ -47,7 +49,6 @@
   var renderNotice = function (arrData) {
     var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
     var noticeElement = noticeTemplate.cloneNode(true);
-
     noticeElement.querySelector('.popup__title').textContent = arrData.offer.title;
     noticeElement.querySelector('.popup__text--address').textContent = arrData.offer.address;
     noticeElement.querySelector('.popup__text--price').textContent = arrData.offer.price + '₽/ночь';
