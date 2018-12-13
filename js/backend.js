@@ -3,8 +3,7 @@
 (function () {
   var STATUS_CODE = 200;
 
-  var load = function (onLoad, onError) {
-    var URL = 'https://js.dump.academy/keksobooking/data';
+  var load = function (url, onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
@@ -14,12 +13,11 @@
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
-    xhr.open('GET', URL);
+    xhr.open('GET', url);
     xhr.send();
   };
 
-  var upload = function (data, onLoad, onError) {
-    var URL = 'https://js.dump.academy/keksobooking';
+  var upload = function (url, data, onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
@@ -29,7 +27,7 @@
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
-    xhr.open('POST', URL);
+    xhr.open('POST', url);
     xhr.send(data);
   };
 

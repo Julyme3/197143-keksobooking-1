@@ -2,6 +2,7 @@
 
 (function () {
   var form = document.querySelector('.ad-form');
+  var URL = 'https://js.dump.academy/keksobooking/data';
 
   var checkBoundaries = function () {
     var MIN_LEFT_COORDS = 0;
@@ -79,7 +80,7 @@
     doVisibleElement(window.data.map, 'map--faded');
     doVisibleElement(form, 'ad-form--disabled');
     window.form.changeFieldsetStatus(false);
-    window.backend.load(successHandler, window.utils.errorHandler);
+    window.backend.load(URL, successHandler, window.utils.errorHandler);
     window.data.mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
   };
 

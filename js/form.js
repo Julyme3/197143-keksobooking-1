@@ -19,6 +19,7 @@
     '3': ['3', '2', '1'],
     '100': ['0']
   };
+  var URL = 'https://js.dump.academy/keksobooking';
 
   var inputCoordinate = function (offsetTop, pinX, pinY) {
     var currentX = pinX || window.data.mainPin.style.left;
@@ -151,7 +152,7 @@
     });
 
     if (isValid) {
-      window.backend.upload(new FormData(form), successHandler, window.utils.errorHandler);
+      window.backend.upload(URL, new FormData(form), successHandler, window.utils.errorHandler);
       form.reset();
     }
   };
