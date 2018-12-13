@@ -13,7 +13,6 @@
   var resetBtn = form.querySelector('.ad-form__reset');
   var inputAddress = form.querySelector('#address');
   var fieldsets = form.querySelectorAll('fieldset');
-  var mapPinCollection = document.querySelectorAll('.map__pin:not(.map__pin--main)');
   var ROOMS_CAPACITY = {
     '1': ['1'],
     '2': ['2', '1'],
@@ -116,10 +115,10 @@
     var successMsgTemplate = document.querySelector('#success').content.querySelector('.success');
     var successMsgElement = successMsgTemplate.cloneNode(true);
     document.querySelector('main').appendChild(successMsgElement);
+    window.map.getDefaultMapState();
 
     var removeSuccessMsg = function () {
       successMsgElement.remove();
-      getDefaultMapState();
     };
 
     document.addEventListener('click', function () {
@@ -146,7 +145,6 @@
         inputCustomValidation.checkValidity(item);
         var customValidityMessage = inputCustomValidation.getInvalidities();
         item.setCustomValidity(customValidityMessage);
-
         var customValidityMessageForHTML = inputCustomValidation.getInvaliditiesForHTML();
         item.insertAdjacentHTML('afterEnd', '<p class="error-message" style="color: red;">' + customValidityMessageForHTML + '</p>');
       }
@@ -169,37 +167,16 @@
     }
   };
 
-  var doHiddenElement = function (element, hiddenClass) {
-    element.classList.add(hiddenClass);
-  };
-
   var changeFieldsetStatus = function (state) {
     Array.from(fieldsets).forEach(function (item) {
       item.disabled = state;
     });
   };
 
-  var removePins = function () {
-    debugger;
-    Array.from(mapPinCollection).forEach(function (item) {
-      item.remove();
-    });
-  };
-
-  var getDefaultMapState = function () {
-    doHiddenElement(window.data.map, 'map--faded');
-    doHiddenElement(form, 'ad-form--disabled');
-    changeFieldsetStatus(true);
-    removePins();
-    inputCoordinate(window.data.pin.HEIGHT / 2, window.data.pin.INITIAL_X, window.data.pin.INITIAL_Y);
-    window.data.mainPin.style.left = window.data.pin.INITIAL_X + 'px';
-    window.data.mainPin.style.top = window.data.pin.INITIAL_Y + 'px';
-    window.data.mainPin.addEventListener('mouseup', window.dragNdrop.onMainPinMouseDownActivate);
-  };
   var onClickReset = function (evt) {
     evt.preventDefault();
     form.reset();
-    getDefaultMapState();
+    window.map.getDefaultMapState();
     var defaultType = type[type.selectedIndex].value;
     price.placeholder = window.data.notice.TYPES_HOUSES[defaultType].min;
     getdefaultStateSelectBox();
@@ -220,7 +197,6 @@
   window.form = {
     inputCoordinate: inputCoordinate,
     changeFieldsetStatus: changeFieldsetStatus,
-    resetBtn: resetBtn,
-    getDefaultMapState: getDefaultMapState
+    resetBtn: resetBtn
   };
 })();

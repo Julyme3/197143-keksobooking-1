@@ -15,16 +15,21 @@
         imgElement.src = arrData.offer.photos[i];
         blockPhoto.appendChild(imgElement);
       }
+    } else {
+      blockPhoto.remove();
     }
 
   };
 
   var createList = function (element, arrData) {
     var liElement = '';
+    var ulList = element.querySelector('.popup__features');
     if (arrData.offer.features.length) {
       for (var i = 0; i < arrData.offer.features.length; i++) {
         liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>';
       }
+    } else {
+      ulList.remove();
     }
     return liElement;
   };
@@ -37,36 +42,38 @@
     window.utils.isEscEvent(evt, window.map.closePopup);
   };
 
-  var onResetBtnClick = function () {
-    window.map.closePopup();
-  };
-
-  var onResetBtnEnter = function (evt) {
-    window.utils.isEnterEvent(evt, window.map.closePopup);
+  var getTextContent = function (obj) {
+    for (var key in obj) {
+      if (key) {
+        obj.textContent = obj[key];
+      } else {
+        obj.remove();
+      }
+    }
   };
 
   // создаем элемент из шаблона и  заполняем его данными
   var renderNotice = function (arrData) {
     var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
     var noticeElement = noticeTemplate.cloneNode(true);
-    noticeElement.querySelector('.popup__title').textContent = arrData.offer.title;
-    noticeElement.querySelector('.popup__text--address').textContent = arrData.offer.address;
-    noticeElement.querySelector('.popup__text--price').textContent = arrData.offer.price + '₽/ночь';
-    noticeElement.querySelector('.popup__type').textContent = window.data.notice.TYPES_HOUSES[arrData.offer.type].ru;
-    noticeElement.querySelector('.popup__text--capacity').textContent = arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests;
-    noticeElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout;
+    var fieldContentMap = {
+      'popup__title': arrData.offer.title,
+      'popup__text--address': arrData.offer.address,
+      'popup__text--price': arrData.offer.price + '₽/ночь',
+      'popup__type': window.data.notice.TYPES_HOUSES[arrData.offer.type].ru,
+      'popup__text--capacity': arrData.offer.rooms + ' комнаты для ' + arrData.offer.guests,
+      'popup__text--time': 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout,
+      'popup__description': arrData.offer.description
+    };
+    getTextContent(fieldContentMap);
     noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, arrData);
-    noticeElement.querySelector('.popup__description').textContent = arrData.offer.description;
     noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
 
     createImg(noticeElement, arrData);
 
     var closeBtn = noticeElement.querySelector('.popup__close');
-
     closeBtn.addEventListener('click', onClosePopupClick);
     closeBtn.addEventListener('keydown', onClosePopupEnter);
-    window.form.resetBtn.addEventListener('click', onResetBtnClick);
-    window.form.resetBtn.addEventListener('click', onResetBtnEnter);
 
     return noticeElement;
   };

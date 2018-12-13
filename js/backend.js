@@ -11,7 +11,7 @@
       if (xhr.status === STATUS_CODE) {
         onLoad(xhr.response);
       } else {
-        onError();
+        onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
     xhr.open('GET', URL);
@@ -23,10 +23,9 @@
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
-      if (xhr.response === STATUS_CODE) {
+      if (xhr.status === STATUS_CODE) {
         onLoad(xhr.response);
-      }
-      else {
+      } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });

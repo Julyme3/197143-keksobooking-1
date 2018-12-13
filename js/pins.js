@@ -16,17 +16,13 @@
       pinElement.classList.add('map__pin--active');
       window.map.openPopup(notice);
     };
-    
+
     pinElement.addEventListener('click', function () {
       onActivatePin();
     });
 
     pinElement.addEventListener('keydown', function (evt) {
       window.utils.isEnterEvent(evt, onActivatePin);
-    });
-
-    window.form.resetBtn.addEventListener('click', function () {
-      pinElement.remove();
     });
 
     return pinElement;

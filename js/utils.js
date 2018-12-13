@@ -20,6 +20,7 @@
     var errorMsgTemplate = document.querySelector('#error').content.querySelector('.error');
     var errorMsgElement = errorMsgTemplate.cloneNode(true);
     document.querySelector('main').appendChild(errorMsgElement);
+    window.map.getDefaultMapState();
 
     var removeErrMsg = function () {
       errorMsgElement.remove();
@@ -34,9 +35,16 @@
     });
   };
 
+  var removeElement = function (item) {
+    if (item) {
+      item.remove();
+    }
+  };
+
   window.utils = {
     isEscEvent: isEscEvent,
     isEnterEvent: isEnterEvent,
-    errorHandler: errorHandler
+    errorHandler: errorHandler,
+    removeElement: removeElement
   };
 })();

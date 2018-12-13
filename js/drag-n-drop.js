@@ -72,7 +72,6 @@
       }
     }
     window.data.mapPins.appendChild(fragment);
-
   };
 
   // активация формы, карты
