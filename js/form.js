@@ -138,14 +138,11 @@
 
     [].forEach.call(inputs, function (item) {
       item.style.boxShadow = 'none';
-
       if (item.checkValidity() === false) {
         isValid = false;
         item.style.boxShadow = '0 0 2px 2px #ff6547';
         var inputCustomValidation = new CustomValidation();
         inputCustomValidation.checkValidity(item);
-        var customValidityMessage = inputCustomValidation.getInvalidities();
-        item.setCustomValidity(customValidityMessage);
         var customValidityMessageForHTML = inputCustomValidation.getInvaliditiesForHTML();
         item.insertAdjacentHTML('afterEnd', '<p class="error-message" style="color: red;">' + customValidityMessageForHTML + '</p>');
       }
