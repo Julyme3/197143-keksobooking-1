@@ -2,6 +2,7 @@
 
 (function () {
   var form = document.querySelector('.ad-form');
+  var URL = 'https://js.dump.academy/keksobooking/data';
 
   var checkBoundaries = function () {
     var MIN_LEFT_COORDS = 0;
@@ -59,12 +60,27 @@
   var doVisibleElement = function (element, hiddenClass) {
     element.classList.remove(hiddenClass);
   };
+
+  var successHandler = function (array) {
+
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < window.data.notice.COUNT; i++) {
+      if (array[i].offer) {
+        fragment.appendChild(window.pins.render(array[i]));
+      } else {
+        return;
+      }
+    }
+    window.data.mapPins.appendChild(fragment);
+  };
+
   // активация формы, карты
   var onMainPinMouseDownActivate = function () {
     doVisibleElement(window.data.map, 'map--faded');
     doVisibleElement(form, 'ad-form--disabled');
     window.form.changeFieldsetStatus(false);
-    window.pins.render();
+    window.backend.sendServerRequest(URL, 'GET', successHandler, window.utils.errorHandler);
     window.data.mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
   };
 

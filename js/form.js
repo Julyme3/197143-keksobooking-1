@@ -19,6 +19,7 @@
     '3': ['3', '2', '1'],
     '100': ['0']
   };
+  var URL = 'https://js.dump.academy/keksobooking';
 
   var inputCoordinate = function (offsetTop, pinX, pinY) {
     var currentX = pinX || window.data.mainPin.style.left;
@@ -111,6 +112,25 @@
     });
   };
 
+  var successHandler = function () {
+    var successMsgTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successMsgElement = successMsgTemplate.cloneNode(true);
+    document.querySelector('main').appendChild(successMsgElement);
+    window.map.getDefaultMapState();
+
+    var removeSuccessMsg = function () {
+      successMsgElement.remove();
+    };
+
+    document.addEventListener('click', function () {
+      removeSuccessMsg();
+    });
+
+    document.addEventListener('keydown', function (evt) {
+      window.utils.isEscEvent(evt, removeSuccessMsg);
+    });
+  };
+
   var onSubmitForm = function (evt) {
     evt.preventDefault();
     var isValid = true;
@@ -118,22 +138,18 @@
 
     [].forEach.call(inputs, function (item) {
       item.style.boxShadow = 'none';
-
       if (item.checkValidity() === false) {
         isValid = false;
         item.style.boxShadow = '0 0 2px 2px #ff6547';
         var inputCustomValidation = new CustomValidation();
         inputCustomValidation.checkValidity(item);
-        var customValidityMessage = inputCustomValidation.getInvalidities();
-        item.setCustomValidity(customValidityMessage);
-
         var customValidityMessageForHTML = inputCustomValidation.getInvaliditiesForHTML();
         item.insertAdjacentHTML('afterEnd', '<p class="error-message" style="color: red;">' + customValidityMessageForHTML + '</p>');
       }
     });
 
     if (isValid) {
-      form.submit();
+      window.backend.sendServerRequest(URL, 'POST', successHandler, window.utils.errorHandler, new FormData(form));
       form.reset();
     }
   };
@@ -149,10 +165,6 @@
     }
   };
 
-  var doHiddenElement = function (element, hiddenClass) {
-    element.classList.add(hiddenClass);
-  };
-
   var changeFieldsetStatus = function (state) {
     Array.from(fieldsets).forEach(function (item) {
       item.disabled = state;
@@ -162,18 +174,11 @@
   var onClickReset = function (evt) {
     evt.preventDefault();
     form.reset();
-    doHiddenElement(window.data.map, 'map--faded');
-    doHiddenElement(form, 'ad-form--disabled');
-
-    changeFieldsetStatus(true);
-    inputCoordinate(window.data.pin.HEIGHT / 2, window.data.pin.INITIAL_X, window.data.pin.INITIAL_Y);
-    window.data.mainPin.style.left = window.data.pin.INITIAL_X + 'px';
-    window.data.mainPin.style.top = window.data.pin.INITIAL_Y + 'px';
+    window.map.getDefaultMapState();
     var defaultType = type[type.selectedIndex].value;
     price.placeholder = window.data.notice.TYPES_HOUSES[defaultType].min;
     getdefaultStateSelectBox();
     removeErrorMsg();
-    window.data.mainPin.addEventListener('mouseup', window.dragNdrop.onMainPinMouseDownActivate);
   };
 
   resetBtn.addEventListener('click', onClickReset);

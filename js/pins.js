@@ -11,6 +11,7 @@
     pinElement.querySelector('img').alt = notice.offer.title;
 
     var onActivatePin = function () {
+
       window.map.closePopup();
       pinElement.classList.add('map__pin--active');
       window.map.openPopup(notice);
@@ -24,23 +25,10 @@
       window.utils.isEnterEvent(evt, onActivatePin);
     });
 
-    window.form.resetBtn.addEventListener('click', function () {
-      pinElement.remove();
-    });
-
     return pinElement;
   };
 
-  var renderPins = function () {
-    var fragment = document.createDocumentFragment();
-
-    for (var i = 0; i < window.data.array.length; i++) {
-      fragment.appendChild(renderPin(window.data.array[i]));
-    }
-    window.data.mapPins.appendChild(fragment);
-  };
-
   window.pins = {
-    render: renderPins
+    render: renderPin
   };
 })();
