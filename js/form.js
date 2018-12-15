@@ -149,7 +149,7 @@
     });
 
     if (isValid) {
-      window.backend.upload(URL, new FormData(form), successHandler, window.utils.errorHandler);
+      window.backend.sendServerRequest(URL, 'POST', successHandler, window.utils.errorHandler, new FormData(form));
       form.reset();
     }
   };

@@ -42,7 +42,7 @@
     window.utils.isEscEvent(evt, window.map.closePopup);
   };
 
-  var getTextContent = function (obj) {
+  var setTextContent = function (obj) {
     for (var key in obj) {
       if (key) {
         obj.textContent = obj[key];
@@ -65,7 +65,7 @@
       'popup__text--time': 'Заезд после ' + arrData.offer.checkin + ', ' + 'выезд до ' + arrData.offer.checkout,
       'popup__description': arrData.offer.description
     };
-    getTextContent(fieldContentMap);
+    setTextContent(fieldContentMap);
     noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, arrData);
     noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
 

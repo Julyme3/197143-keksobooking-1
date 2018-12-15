@@ -80,7 +80,7 @@
     doVisibleElement(window.data.map, 'map--faded');
     doVisibleElement(form, 'ad-form--disabled');
     window.form.changeFieldsetStatus(false);
-    window.backend.load(URL, successHandler, window.utils.errorHandler);
+    window.backend.sendServerRequest(URL, 'GET', successHandler, window.utils.errorHandler);
     window.data.mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
   };
 
