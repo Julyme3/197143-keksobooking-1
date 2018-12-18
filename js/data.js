@@ -2,7 +2,7 @@
 
 (function () {
   var NoticeData = {
-    COUNT: 8,
+    COUNT: 5,
     TYPES_HOUSES: {
       'palace': {
         'ru': 'Дворец',
@@ -32,8 +32,8 @@
     MAX_LOCATION_Y: 630,
     INITIAL_X: 570,
     INITIAL_Y: 375,
-    INITIAL_LEG_HEIGHT: 0,
-    HEIGHT_LEG: 22,
+    INITIAL_MARKER_HEIGHT: 0,
+    HEIGHT_MARKER: 22,
     HEIGHT: mainPin.offsetHeight,
     WIDTH: mainPin.offsetWidth
   };
