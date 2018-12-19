@@ -70,32 +70,13 @@
   window.data.mainPin.addEventListener('mousedown', window.dragNdrop.onMainPinMouseDown);
   window.data.mainPin.addEventListener('mousedown', onMainPinMouseDownActivate);
 
-  var onFiltersChange = function () {
+  var onFiltersChange = window.debounce(function () {
     window.pins.remove();
     var card = window.data.map.querySelector('.popup');
     window.utils.removeElement(card);
-  //  debugger;
-    window.debounce.a(window.filters.updatePins(allNotices));
-    // var lastTimeout;
-    // if (lastTimeout) {
-    //   window.clearTimeout(lastTimeout);
-    // }
-
-    // window.setTimeout(function () {
-    //   window.filters.updatePins(allNotices);
-    // }, 5000);
-    //window.debounce(window.filters.updatePins(allNotices), 5000);
-  };
+    window.filters.updatePins(allNotices);
+  });
   window.filters.form.addEventListener('change', onFiltersChange);
-  // window.filters.form.addEventListener('change', function () {
-  //   window.pins.remove();
-  //   var card = window.data.map.querySelector('.popup');
-  //   window.utils.removeElement(card);
-  // //  debugger;
-  //   window.debounce.a(function () {
-  //     window.filters.updatePins(allNotices);
-  //   }, 500);
-  // });
 
   window.map = {
     openPopup: openPopup,

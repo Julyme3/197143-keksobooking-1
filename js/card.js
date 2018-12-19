@@ -52,7 +52,6 @@
     }
   };
 
-  // создаем элемент из шаблона и  заполняем его данными
   var renderNotice = function (arrData) {
     var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
     var noticeElement = noticeTemplate.cloneNode(true);
