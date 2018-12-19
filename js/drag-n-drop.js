@@ -1,14 +1,12 @@
 'use strict';
 
 (function () {
-  var form = document.querySelector('.ad-form');
-  var URL = 'https://js.dump.academy/keksobooking/data';
 
   var checkBoundaries = function () {
     var MIN_LEFT_COORDS = 0;
-    var MIN_TOP_COORDS = window.data.pin.MIN_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_LEG;
+    var MIN_TOP_COORDS = window.data.pin.MIN_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;
     var maxLeftCoords = window.data.map.offsetWidth - window.data.pin.WIDTH;
-    var maxTopCoords = window.data.pin.MAX_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_LEG;
+    var maxTopCoords = window.data.pin.MAX_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;
 
     if (window.data.mainPin.offsetLeft < MIN_LEFT_COORDS) {
       window.data.mainPin.style.left = MIN_LEFT_COORDS + 'px';
@@ -44,50 +42,19 @@
       window.data.mainPin.style.top = (window.data.mainPin.offsetTop - shift.y) + 'px';
       window.data.mainPin.style.left = (window.data.mainPin.offsetLeft - shift.x) + 'px';
       checkBoundaries();
-      window.form.inputCoordinate(window.data.pin.HEIGHT + window.data.pin.HEIGHT_LEG);
+      window.form.inputCoordinate(window.data.pin.HEIGHT + window.data.pin.HEIGHT_MARKER);
     };
 
     var onMainPinMouseUp = function (upEvt) {
       upEvt.preventDefault();
-      window.form.inputCoordinate(window.data.pin.HEIGHT + window.data.pin.HEIGHT_LEG);
+      window.form.inputCoordinate(window.data.pin.HEIGHT + window.data.pin.HEIGHT_MARKER);
       document.removeEventListener('mousemove', onMainPinMouseMove);
       document.removeEventListener('mouseup', onMainPinMouseUp);
     };
     document.addEventListener('mousemove', onMainPinMouseMove);
     document.addEventListener('mouseup', onMainPinMouseUp);
   };
-
-  var doVisibleElement = function (element, hiddenClass) {
-    element.classList.remove(hiddenClass);
-  };
-
-  var successHandler = function (array) {
-
-    var fragment = document.createDocumentFragment();
-
-    for (var i = 0; i < window.data.notice.COUNT; i++) {
-      if (array[i].offer) {
-        fragment.appendChild(window.pins.render(array[i]));
-      } else {
-        return;
-      }
-    }
-    window.data.mapPins.appendChild(fragment);
-  };
-
-  // активация формы, карты
-  var onMainPinMouseDownActivate = function () {
-    doVisibleElement(window.data.map, 'map--faded');
-    doVisibleElement(form, 'ad-form--disabled');
-    window.form.changeFieldsetStatus(false);
-    window.backend.sendServerRequest(URL, 'GET', successHandler, window.utils.errorHandler);
-    window.data.mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
-  };
-
-  window.data.mainPin.addEventListener('mousedown', onMainPinMouseDown);
-  window.data.mainPin.addEventListener('mousedown', onMainPinMouseDownActivate);
-
   window.dragNdrop = {
-    onMainPinMouseDownActivate: onMainPinMouseDownActivate
+    onMainPinMouseDown: onMainPinMouseDown
   };
 })();

@@ -29,7 +29,6 @@
     inputAddress.value = positionX + ', ' + positionY;
   };
 
-  // поля Тип жилья - цена
   var onTypeHousesChange = function () {
     var currentValue = type.value;
     price.placeholder = window.data.notice.TYPES_HOUSES[currentValue].min;
@@ -45,7 +44,7 @@
     }
   };
 
-  onRoomNumberChange(); // сразу прячем неподходящие options для Кол-ва гостей
+  onRoomNumberChange();
 
   roomNumber.addEventListener('change', onRoomNumberChange);
   type.addEventListener('change', onTypeHousesChange);
@@ -58,8 +57,7 @@
     timein.value = timeout.value;
   });
 
-  // Кастомные сообщения об ошибке
-  function CustomValidation() { }
+  var CustomValidation = function () { };
   CustomValidation.prototype = {
 
     invalidities: [],
@@ -100,7 +98,7 @@
   };
 
   var removeErrorMsg = function () {
-    var errors = document.querySelectorAll('.error-message'); // сообщения об ошибке
+    var errors = document.querySelectorAll('.error-message');
     if (errors) {
       [].forEach.call(errors, function (error) {
         error.remove();

@@ -2,7 +2,6 @@
 
 (function () {
   var STATUS_CODE = 200;
-
   var sendServerRequest = function (url, type, onLoad, onError, data) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
@@ -16,7 +15,6 @@
     xhr.open(type, url);
     xhr.send(data);
   };
-
   window.backend = {
     sendServerRequest: sendServerRequest
   };
