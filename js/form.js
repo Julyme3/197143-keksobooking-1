@@ -152,7 +152,7 @@
     }
   };
 
-  var getdefaultStateSelectBox = function () {
+  var getDefaultStateSelectBox = function () {
 
     if (capacity.options.length > 0) {
       [].forEach.call(capacity.options, function (item) {
@@ -175,7 +175,7 @@
     window.map.getDefaultMapState();
     var defaultType = type[type.selectedIndex].value;
     price.placeholder = window.data.notice.TYPES_HOUSES[defaultType].min;
-    getdefaultStateSelectBox();
+    getDefaultStateSelectBox();
     removeErrorMsg();
   };
 

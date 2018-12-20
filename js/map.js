@@ -44,7 +44,7 @@
     window.form.inputCoordinate(window.data.pin.HEIGHT / 2, window.data.pin.INITIAL_X, window.data.pin.INITIAL_Y);
     window.data.mainPin.style.left = window.data.pin.INITIAL_X + 'px';
     window.data.mainPin.style.top = window.data.pin.INITIAL_Y + 'px';
-    window.data.mainPin.addEventListener('mouseup', window.dragNdrop.onMainPinMouseDownActivate);
+    window.data.mainPin.addEventListener('mouseup', onMainPinMouseDownActivate);
   };
 
   var doVisibleElement = function (element, hiddenClass) {
@@ -67,6 +67,7 @@
     window.data.mainPin.removeEventListener('mousedown', onMainPinMouseDownActivate);
   };
 
+  window.form.changeFieldsetStatus(true);
   window.data.mainPin.addEventListener('mousedown', window.dragNdrop.onMainPinMouseDown);
   window.data.mainPin.addEventListener('mousedown', onMainPinMouseDownActivate);
 
