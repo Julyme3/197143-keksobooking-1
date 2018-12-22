@@ -4,7 +4,7 @@
 
   var checkBoundaries = function () {
     var MIN_LEFT_COORDS = 0;
-    var MIN_TOP_COORDS = window.data.pin.MIN_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;
+    var minTopCoords = window.data.pin.MIN_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;
     var maxLeftCoords = window.data.map.offsetWidth - window.data.pin.WIDTH;
     var maxTopCoords = window.data.pin.MAX_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;
 
@@ -14,8 +14,8 @@
       window.data.mainPin.style.left = maxLeftCoords + 'px';
     }
 
-    if (window.data.mainPin.offsetTop < MIN_TOP_COORDS) {
-      window.data.mainPin.style.top = MIN_TOP_COORDS + 'px';
+    if (window.data.mainPin.offsetTop < minTopCoords) {
+      window.data.mainPin.style.top = minTopCoords + 'px';
     } else if (window.data.mainPin.offsetTop > maxTopCoords) {
       window.data.mainPin.style.top = maxTopCoords + 'px';
     }

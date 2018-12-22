@@ -1,8 +1,9 @@
 'use strict';
 
 (function () {
+  var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
+
   var renderPin = function (notice) {
-    var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
     var pinElement = pinTemplate.cloneNode(true);
     pinElement.querySelector('img').src = notice.author.avatar;
     pinElement.style.left = notice.location.x - (window.data.pin.WIDTH / 2) + 'px';
@@ -41,7 +42,7 @@
 
   var removePins = function () {
     var pins = window.data.map.querySelectorAll('.map__pin:not(.map__pin--main)');
-    Array.from(pins).forEach(function (item) {
+    [].forEach.call(pins, function (item) {
       window.utils.removeElement(item);
     });
   };

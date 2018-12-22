@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  var form = document.querySelector('.ad-form');
   var URL = 'https://js.dump.academy/keksobooking/data';
+  var form = document.querySelector('.ad-form');
 
   var removeActiveClass = function () {
     var activePin = window.data.map.querySelector('.map__pin--active');

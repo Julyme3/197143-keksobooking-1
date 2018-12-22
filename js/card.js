@@ -6,15 +6,15 @@
 
     blockPhoto.innerHTML = '';
     if (arrData.offer.photos.length) {
-      for (var i = 0; i <= arrData.offer.photos.length - 1; i++) {
+      [].forEach.call(arrData.offer.photos, function (i) {
         var imgElement = document.createElement('img');
         imgElement.className = 'popup__photo';
         imgElement.style.width = 45 + 'px';
         imgElement.style.height = 40 + 'px';
         imgElement.alt = 'Фотография жилья';
-        imgElement.src = arrData.offer.photos[i];
+        imgElement.src = i;
         blockPhoto.appendChild(imgElement);
-      }
+      });
     } else {
       window.utils.removeElement(blockPhoto);
     }
@@ -25,9 +25,9 @@
     var liElement = '';
     var ulList = element.querySelector('.popup__features');
     if (arrData.offer.features.length) {
-      for (var i = 0; i < arrData.offer.features.length; i++) {
-        liElement += '<li class="popup__feature popup__feature--' + arrData.offer.features[i] + '"></li>';
-      }
+      [].forEach.call(arrData.offer.features, function (i) {
+        liElement += '<li class="popup__feature popup__feature--' + i + '"></li>';
+      });
     } else {
       window.utils.removeElement(ulList);
     }
@@ -55,6 +55,7 @@
   var renderNotice = function (arrData) {
     var noticeTemplate = document.querySelector('#card').content.querySelector('.map__card');
     var noticeElement = noticeTemplate.cloneNode(true);
+    var popupFeatures = noticeElement.querySelector('.popup__features');
     var fieldContentMap = {
       '.popup__title': arrData.offer.title,
       '.popup__text--address': arrData.offer.address,
@@ -65,7 +66,8 @@
       '.popup__description': arrData.offer.description
     };
     setTextContent(fieldContentMap, noticeElement);
-    noticeElement.querySelector('.popup__features').innerHTML = createList(noticeElement, arrData);
+    popupFeatures.innerHTML = '';
+    popupFeatures.insertAdjacentHTML('beforeend', createList(noticeElement, arrData));
     noticeElement.querySelector('.popup__avatar').src = arrData.author.avatar;
 
     createImg(noticeElement, arrData);

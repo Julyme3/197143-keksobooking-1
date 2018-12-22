@@ -3,7 +3,7 @@
 (function () {
   var filterForm = window.data.map.querySelector('.map__filters');
 
-  var PRICE_LIMIT = {
+  var priceLimit = {
     'low': 10000,
     'high': 50000
   };
@@ -14,7 +14,7 @@
     var selectsFilters = filterForm.querySelectorAll('select');
     var checkedCheckboxes = filterForm.querySelectorAll('input[type=checkbox]:checked');
 
-    var FilterRules = {
+    var filterRules = {
       'housing-type': 'type',
       'housing-rooms': 'rooms',
       'housing-guests': 'guests'
@@ -29,9 +29,9 @@
     var filterByPrice = function (priceFilter) {
       return filteredNotices.filter(function (item) {
         var priceFilterValues = {
-          'middle': item.offer.price >= PRICE_LIMIT.low && item.offer.price <= PRICE_LIMIT.high,
-          'low': item.offer.price < PRICE_LIMIT.low,
-          'high': item.offer.price >= PRICE_LIMIT.high
+          'middle': item.offer.price >= priceLimit.low && item.offer.price <= priceLimit.high,
+          'low': item.offer.price < priceLimit.low,
+          'high': item.offer.price >= priceLimit.high
         };
         return priceFilterValues[priceFilter.value];
       });
@@ -47,7 +47,7 @@
       selectsFilters.forEach(function (item) {
         if (item.value !== 'any') {
           if (item.id !== 'housing-price') {
-            filteredNotices = filterByValue(item, FilterRules[item.id]);
+            filteredNotices = filterByValue(item, filterRules[item.id]);
           } else {
             filteredNotices = filterByPrice(item);
           }

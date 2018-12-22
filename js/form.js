@@ -1,6 +1,13 @@
 'use strict';
 
 (function () {
+  var RoomsCapacity = {
+    '1': ['1'],
+    '2': ['2', '1'],
+    '3': ['3', '2', '1'],
+    '100': ['0']
+  };
+  var URL = 'https://js.dump.academy/keksobooking';
   var form = document.querySelector('.ad-form');
   var type = form.querySelector('#type');
   var price = form.querySelector('#price');
@@ -13,13 +20,6 @@
   var resetBtn = form.querySelector('.ad-form__reset');
   var inputAddress = form.querySelector('#address');
   var fieldsets = form.querySelectorAll('fieldset');
-  var ROOMS_CAPACITY = {
-    '1': ['1'],
-    '2': ['2', '1'],
-    '3': ['3', '2', '1'],
-    '100': ['0']
-  };
-  var URL = 'https://js.dump.academy/keksobooking';
 
   var inputCoordinate = function (offsetTop, pinX, pinY) {
     var currentX = pinX || window.data.mainPin.style.left;
@@ -32,18 +32,19 @@
   var onTypeHousesChange = function () {
     var currentValue = type.value;
     price.placeholder = window.data.notice.TYPES_HOUSES[currentValue].min;
+    price.min = window.data.notice.TYPES_HOUSES[currentValue].min;
   };
 
   var onRoomNumberChange = function () {
 
     if (capacity.options.length > 0) {
       [].forEach.call(capacity.options, function (item) {
-        item.selected = (ROOMS_CAPACITY[roomNumber.value][0] === item.value) ? true : false;
-        item.hidden = (ROOMS_CAPACITY[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
+        item.selected = (RoomsCapacity[roomNumber.value][0] === item.value) ? true : false;
+        item.hidden = (RoomsCapacity[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
       });
     }
   };
-
+  onTypeHousesChange();
   onRoomNumberChange();
 
   roomNumber.addEventListener('change', onRoomNumberChange);
@@ -73,9 +74,14 @@
         this.addInvalidity('Минимальная длина — 30 символов.');
       }
 
+      if (validity.rangeUnderflow) {
+        var min = input.min;
+        this.addInvalidity('Минимальное значение — ' + min + ' руб.');
+      }
+
       if (validity.rangeOverflow) {
         var max = input.max;
-        this.addInvalidity('Максимальное значение — 1 000 000 ' + max + '.');
+        this.addInvalidity('Максимальное значение — ' + max + ' руб.');
       }
 
       if (validity.valueMissing) {
@@ -164,7 +170,7 @@
   };
 
   var changeFieldsetStatus = function (state) {
-    Array.from(fieldsets).forEach(function (item) {
+    [].forEach.call(fieldsets, function (item) {
       item.disabled = state;
     });
   };
