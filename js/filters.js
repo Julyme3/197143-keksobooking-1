@@ -3,9 +3,9 @@
 (function () {
   var filterForm = window.data.map.querySelector('.map__filters');
 
-  var priceLimit = {
-    'low': 10000,
-    'high': 50000
+  var PriceLimit = {
+    LOW: 10000,
+    HIGH: 50000
   };
 
   var updatePins = function (notices) {
@@ -29,9 +29,9 @@
     var filterByPrice = function (priceFilter) {
       return filteredNotices.filter(function (item) {
         var priceFilterValues = {
-          'middle': item.offer.price >= priceLimit.low && item.offer.price <= priceLimit.high,
-          'low': item.offer.price < priceLimit.low,
-          'high': item.offer.price >= priceLimit.high
+          'middle': item.offer.price >= PriceLimit.LOW && item.offer.price <= PriceLimit.HIGH,
+          'low': item.offer.price < PriceLimit.LOW,
+          'high': item.offer.price >= PriceLimit.HIGH
         };
         return priceFilterValues[priceFilter.value];
       });
@@ -44,19 +44,15 @@
     };
 
     if (selectsFilters.length !== null) {
-      selectsFilters.forEach(function (item) {
+      [].forEach.call(selectsFilters, function (item) {
         if (item.value !== 'any') {
-          if (item.id !== 'housing-price') {
-            filteredNotices = filterByValue(item, filterRules[item.id]);
-          } else {
-            filteredNotices = filterByPrice(item);
-          }
+          filteredNotices = (item.id !== 'housing-price') ? filterByValue(item, filterRules[item.id]) : filterByPrice(item);
         }
       });
     }
 
     if (checkedCheckboxes !== null) {
-      checkedCheckboxes.forEach(function (item) {
+      [].forEach.call(checkedCheckboxes, function (item) {
         filteredNotices = filterByFeatures(item);
       });
     }

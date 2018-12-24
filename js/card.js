@@ -6,7 +6,7 @@
 
     blockPhoto.innerHTML = '';
     if (arrData.offer.photos.length) {
-      [].forEach.call(arrData.offer.photos, function (i) {
+      arrData.offer.photos.forEach(function (i) {
         var imgElement = document.createElement('img');
         imgElement.className = 'popup__photo';
         imgElement.style.width = 45 + 'px';
@@ -25,7 +25,7 @@
     var liElement = '';
     var ulList = element.querySelector('.popup__features');
     if (arrData.offer.features.length) {
-      [].forEach.call(arrData.offer.features, function (i) {
+      arrData.offer.features.forEach(function (i) {
         liElement += '<li class="popup__feature popup__feature--' + i + '"></li>';
       });
     } else {

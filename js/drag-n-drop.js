@@ -1,9 +1,9 @@
 'use strict';
 
 (function () {
+  var MIN_LEFT_COORDS = 0;
 
   var checkBoundaries = function () {
-    var MIN_LEFT_COORDS = 0;
     var minTopCoords = window.data.pin.MIN_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;
     var maxLeftCoords = window.data.map.offsetWidth - window.data.pin.WIDTH;
     var maxTopCoords = window.data.pin.MAX_LOCATION_Y - window.data.pin.HEIGHT - window.data.pin.HEIGHT_MARKER;

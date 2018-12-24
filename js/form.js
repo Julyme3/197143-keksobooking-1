@@ -1,13 +1,15 @@
 'use strict';
 
 (function () {
+  var URL = 'https://js.dump.academy/keksobooking';
+
   var RoomsCapacity = {
     '1': ['1'],
     '2': ['2', '1'],
     '3': ['3', '2', '1'],
     '100': ['0']
   };
-  var URL = 'https://js.dump.academy/keksobooking';
+
   var form = document.querySelector('.ad-form');
   var type = form.querySelector('#type');
   var price = form.querySelector('#price');
@@ -39,8 +41,8 @@
 
     if (capacity.options.length > 0) {
       [].forEach.call(capacity.options, function (item) {
-        item.selected = (RoomsCapacity[roomNumber.value][0] === item.value) ? true : false;
-        item.hidden = (RoomsCapacity[roomNumber.value].indexOf(item.value) >= 0) ? false : true;
+        item.selected = (RoomsCapacity[roomNumber.value][0] === item.value);
+        item.hidden = !(RoomsCapacity[roomNumber.value].indexOf(item.value) >= 0);
       });
     }
   };

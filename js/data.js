@@ -39,8 +39,8 @@
   };
 
   window.data = {
-    map: document.querySelector('.map'),
-    mainPin: map.querySelector('.map__pin--main'),
+    map: map,
+    mainPin: mainPin,
     mapPins: map.querySelector('.map__pins'),
     notice: NoticeData,
     pin: Pin
