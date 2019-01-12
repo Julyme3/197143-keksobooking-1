@@ -201,6 +201,7 @@
   window.form = {
     inputCoordinate: inputCoordinate,
     changeFieldsetStatus: changeFieldsetStatus,
-    resetBtn: resetBtn
+    resetBtn: resetBtn,
+    element: form
   };
 })();
